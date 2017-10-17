@@ -1,0 +1,11 @@
+syntax:glob
+build/
+bin/**.exe
+bin/**.exp
+bin/**.lib
+**.vcxproj
+src/**.vcxproj.*
+**.sdf
+**.sln
+**.suo
+src/.vs
