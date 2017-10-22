@@ -1,0 +1,1 @@
+ExitAppKey = SimulateInput.KEY_F5
