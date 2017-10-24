@@ -1,19 +1,18 @@
-
 #include "InputBinding.h"
 #include "GamepadInput.h"
 
 extern "C"
 {
-	#include <lua.h>
-	#include <lualib.h>
-	#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 namespace ScriptBindings
 {
 	const char tableName[] = "Input";
-	inline void PushInteger(lua_State* L, int v, const char* n);
-	inline void PushMemberVariables(lua_State* L);
+	inline static void PushInteger(lua_State* L, int v, const char* n);
+	inline static void PushMemberVariables(lua_State* L);
 
 	static int ButtonPressed(lua_State* L)
 	{
@@ -62,7 +61,7 @@ namespace ScriptBindings
 		lua_pushnumber(L, GamepadInput::GetInstance().GetStickY(0, GamepadInput::RIGHT));
 		return 1;
 	}
-
+	// todo: find a way to register with this structure
 	static const luaL_Reg Input_Functions[] =
 	{
 		{ "ButtonPressed", ButtonPressed },
@@ -75,8 +74,7 @@ namespace ScriptBindings
 		{ NULL, NULL },
 	};
 
-	// Pretty i know...
-	inline void PushFunctions(lua_State* L)
+	inline static void PushFunctions(lua_State* L)
 	{
 		lua_pushcfunction(L, ButtonPressed);
 		lua_setfield(L, -2, "ButtonPressed");
@@ -103,13 +101,13 @@ namespace ScriptBindings
 		return 1;
 	}
 
-	inline void PushInteger(lua_State* L, int v, const char* n)
+	inline static void PushInteger(lua_State* L, int v, const char* n)
 	{
 		lua_pushinteger(L, v);
 		lua_setfield(L, -2, n);
 	}
 
-	static void PushMemberVariables(lua_State* L)
+	inline static void PushMemberVariables(lua_State* L)
 	{
 		PushInteger(L, GamepadInput::GAMEPAD_DPAD_UP, "GAMEPAD_DPAD_UP");
 		PushInteger(L, GamepadInput::GAMEPAD_DPAD_DOWN, "GAMEPAD_DPAD_DOWN");

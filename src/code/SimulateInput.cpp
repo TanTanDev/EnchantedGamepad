@@ -1,17 +1,15 @@
 #include "SimulateInput.h"
+#include "AppSettings.h"
 
 #include <Windows.h>
 #include <iostream>
 
-// Defined lower down in file
+// Declerations
 inline void SendInput(int key, bool isDown);
-inline LONG getAbsolueScreenCoord(float resolution, float pos);
+inline LONG getAbsoluteScreenCoord(float resolution, float pos);
 
 SimulateInput::SimulateInput()
 {
-	// todo: Move these values somewhere else, ugly ;)
-	screenResolutionHeight = GetSystemMetrics(SM_CYSCREEN);
-	screenResolutionWidth = GetSystemMetrics(SM_CXSCREEN);
 }
 
 SimulateInput::~SimulateInput()
@@ -23,6 +21,17 @@ void SimulateInput::PressKey(int key = 0x51)
 {
 	SendInput(key, true);
 	SendInput(key, false);
+}
+
+void SimulateInput::PressKey(int key1, int key2)
+{
+	SendInput(key1, true);
+	if (key2 != 0)
+	{
+		SendInput(key2, true);
+		SendInput(key2, false);
+	}
+	SendInput(key1, false);
 }
 
 void SimulateInput::KeyDown(int key)
@@ -48,8 +57,8 @@ void SimulateInput::SetMousePos(float x, float y)
 {
 	INPUT input;
 	input.type = INPUT_MOUSE;
-	input.mi.dx = getAbsolueScreenCoord(screenResolutionWidth, x);
-	input.mi.dy = getAbsolueScreenCoord(screenResolutionHeight, y);
+	input.mi.dx = getAbsoluteScreenCoord(AppSettings::GetInstance().screenResolutionWidth, x);
+	input.mi.dy = getAbsoluteScreenCoord(AppSettings::GetInstance().screenResolutionHeight, y);
 	input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
 	input.mi.time = 0;
 	SendInput(1, &input, sizeof(INPUT));
@@ -66,7 +75,7 @@ void SimulateInput::MoveMouse(float x, float y)
 	SendInput(1, &input, sizeof(INPUT));
 }
 
-inline LONG getAbsolueScreenCoord(float resolution, float pos)
+inline LONG getAbsoluteScreenCoord(float resolution, float pos)
 {
 	// Absolute position goes from 0 -> 65536.0f that's why we do this
 	return pos * (65536.0f / resolution);

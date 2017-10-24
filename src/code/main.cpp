@@ -11,8 +11,8 @@
 
 int main()
 {
-	AppSettings appSettings;
-	appSettings.LoadSettingsFromScript("Scripts/globalSettings.lua");
+	//AppSettings appSettings;
+	AppSettings::GetInstance().LoadSettingsFromScript("Scripts/globalSettings.lua");
 
 	Script script;
 	script.Load("Scripts/test.lua");
@@ -36,7 +36,7 @@ int main()
 				window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
 		}
 
-		window.clear(sf::Color::Black);
+		window.clear(sf::Color(38,43,52,255));
 		// Render
 		window.display();
 		sf::sleep(sf::Time(sf::milliseconds(2)));

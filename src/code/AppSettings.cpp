@@ -1,10 +1,13 @@
 #include "AppSettings.h"
 #include "Script.h"
 
+#include <Windows.h>
 #include <iostream>
 AppSettings::AppSettings()
 	:ExitAppKey(0)
 {
+	screenResolutionHeight = GetSystemMetrics(SM_CYSCREEN);
+	screenResolutionWidth = GetSystemMetrics(SM_CXSCREEN);
 }
 
 AppSettings::~AppSettings()

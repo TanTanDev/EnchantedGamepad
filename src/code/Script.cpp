@@ -1,6 +1,7 @@
 #include "Script.h"
-#include "ScriptBindings\InputBinding.h"
 #include "ScriptBindings\SimulateInputBinding.h"
+#include "ScriptBindings\InputBinding.h"
+#include "ScriptBindings\AppSettingsBinding.h"
 
 #include <iostream>
 extern "C"
@@ -32,7 +33,8 @@ void Script::Load(const char * fileName)
 	luaopen_table(luaState);
 
 	ScriptBindings::luaopen_input(luaState);
-	ScriptBindings::luaopen_simulatedinput(luaState);
+	ScriptBindings::luaopen_simulateinput(luaState);
+	ScriptBindings::luaopen_appsettings(luaState);
 
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{
