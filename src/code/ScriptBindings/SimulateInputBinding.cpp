@@ -29,7 +29,7 @@ namespace ScriptBindings
 		lua_Integer key = luaL_checkinteger(L, 1);
 		lua_Integer key2 = 0;
 		if (lua_isnumber(L, 2))
-			lua_Integer key2 = luaL_checkinteger(L, 2);
+			key2 = luaL_checkinteger(L, 2);
 		SimulateInput::GetInstance().PressKey(key, key2);
 		return 0;
 	}
