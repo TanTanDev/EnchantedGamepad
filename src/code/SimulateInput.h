@@ -3,14 +3,12 @@
 
 class SimulateInput : public Singleton<SimulateInput>
 {
-private:
-	int screenResolutionWidth;
-	int screenResolutionHeight;
 public:
 	SimulateInput();
 	~SimulateInput();
 
-	void PressKey(int keyssssss);
+	void PressKey(int key);
+	void PressKey(int key1, int key2);
 	void KeyDown(int key);
 	void KeyUp(int key);
 	void ScrollMouse(int delta);

@@ -3,21 +3,34 @@
 
 extern "C"
 {
-	#include <lua.h>
-	#include <lualib.h>
-	#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 namespace ScriptBindings
 {
 	const char tableName[] = "SimulateInput";
-	inline void PushInteger(lua_State* L, int v, const char* n);
-	inline void PushMemberVariables(lua_State* L);
+	inline static void PushInteger(lua_State* L, int v, const char* n);
+	inline static void PushFunctions(lua_State* L);
+	inline static void PushMemberVariables(lua_State* L);
+
+	/*LUALIB_API*/ int luaopen_simulateinput(lua_State* L)
+	{
+		lua_newtable(L);
+		PushMemberVariables(L);
+		PushFunctions(L);
+		lua_setglobal(L, tableName);
+		return 1;
+	}
 
 	static int PressKey(lua_State* L)
 	{
 		lua_Integer key = luaL_checkinteger(L, 1);
-		SimulateInput::GetInstance().PressKey(key);
+		lua_Integer key2 = 0;
+		if (lua_isnumber(L, 2))
+			lua_Integer key2 = luaL_checkinteger(L, 2);
+		SimulateInput::GetInstance().PressKey(key, key2);
 		return 0;
 	}
 
@@ -58,8 +71,7 @@ namespace ScriptBindings
 		SimulateInput::GetInstance().ScrollMouse(delta);
 		return 0;
 	}
-
-	inline void PushFunctions(lua_State* L)
+	inline static void PushFunctions(lua_State* L)
 	{
 		lua_pushcfunction(L, KeyUp);
 		lua_setfield(L, -2, "KeyUp");
@@ -75,22 +87,13 @@ namespace ScriptBindings
 		lua_setfield(L, -2, "ScrollMouse");
 	}
 
-	/*LUALIB_API*/ int luaopen_simulatedinput(lua_State* L)
-	{
-		lua_newtable(L);
-		PushMemberVariables(L);
-		PushFunctions(L);
-		lua_setglobal(L, tableName);
-		return 1;
-	}
-
-	inline void PushInteger(lua_State* L, int v, const char* n)
+	inline static void PushInteger(lua_State* L, int v, const char* n)
 	{
 		lua_pushinteger(L, v);
 		lua_setfield(L, -2, n);
 	}
 
-	static void PushMemberVariables(lua_State* L)
+	inline static void PushMemberVariables(lua_State* L)
 	{
 		PushInteger(L, 0x01, "MOUSE_LEFT");
 		PushInteger(L, 0x02, "MOUSE_RIGHT");
