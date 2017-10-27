@@ -1,6 +1,9 @@
 #include "SimulateInputBinding.h"
 #include "SimulateInput.h"
 
+// Needed to read data from vectors
+#include "VectorBinding.h"
+
 extern "C"
 {
 #include <lua.h>
@@ -51,17 +54,15 @@ namespace ScriptBindings
 
 	static int SetMousePos(lua_State* L)
 	{
-		lua_Number xPos = luaL_checknumber(L, 1);
-		lua_Number yPos = luaL_checknumber(L, 2);
-		SimulateInput::GetInstance().SetMousePos(xPos, yPos);
+		Vector vector = lua_checkvectorEx(L, 1);
+		SimulateInput::GetInstance().SetMousePos(vector.x, vector.y);
 		return 0;
 	}
 
 	static int MoveMouse(lua_State* L)
 	{
-		lua_Number xPos = luaL_checknumber(L, 1);
-		lua_Number yPos = luaL_checknumber(L, 2);
-		SimulateInput::GetInstance().MoveMouse(xPos, yPos);
+		Vector vector = lua_checkvectorEx(L, 1);
+		SimulateInput::GetInstance().MoveMouse(vector.x, vector.y);
 		return 0;
 	}
 

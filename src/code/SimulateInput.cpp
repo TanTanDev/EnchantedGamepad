@@ -1,5 +1,6 @@
 #include "SimulateInput.h"
 #include "AppSettings.h"
+#include "Vector.h"
 
 #include <Windows.h>
 #include <iostream>
@@ -10,6 +11,7 @@ inline LONG getAbsoluteScreenCoord(float resolution, float pos);
 
 SimulateInput::SimulateInput()
 {
+//	mousePosition = Vector();
 }
 
 SimulateInput::~SimulateInput()
@@ -57,22 +59,47 @@ void SimulateInput::SetMousePos(float x, float y)
 {
 	INPUT input;
 	input.type = INPUT_MOUSE;
-	input.mi.dx = getAbsoluteScreenCoord(AppSettings::GetInstance().screenResolutionWidth, x);
-	input.mi.dy = getAbsoluteScreenCoord(AppSettings::GetInstance().screenResolutionHeight, y);
+	input.mi.dx = 0.5f + getAbsoluteScreenCoord(AppSettings::GetInstance().screenResolutionWidth, x);
+	input.mi.dy = 0.5f + getAbsoluteScreenCoord(AppSettings::GetInstance().screenResolutionHeight, y);
 	input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
 	input.mi.time = 0;
 	SendInput(1, &input, sizeof(INPUT));
+
+	OnMouseMoved(x, y);
 }
 
 void SimulateInput::MoveMouse(float x, float y)
 {
-	INPUT input;
-	input.type = INPUT_MOUSE;
-	input.mi.dx = x;
-	input.mi.dy = y;
-	input.mi.dwFlags = MOUSEEVENTF_MOVE;
-	input.mi.time = 0;
-	SendInput(1, &input, sizeof(INPUT));
+	// if we use delta based values this won't work
+	//INPUT input;
+	//input.type = INPUT_MOUSE;
+	//input.mi.dx = 0.5f + x;
+	//input.mi.dy = 0.5f + y;
+	//input.mi.dwFlags = MOUSEEVENTF_MOVE;
+	//input.mi.time = 0;
+	//SendInput(1, &input, sizeof(INPUT));
+
+	// ensures precision
+	mousePosition.x += x;
+	mousePosition.y += y;
+	SetMousePos(mousePosition.x, mousePosition.y);
+}
+
+Vector SimulateInput::GetMousePos()
+{
+	return Vector();
+}
+
+void SimulateInput::OnMouseMoved(Vector pos)
+{
+	mousePosition.x = pos.x;
+	mousePosition.y = pos.y;
+}
+
+void SimulateInput::OnMouseMoved(float x, float y)
+{
+	mousePosition.x = x;
+	mousePosition.y = y;
 }
 
 inline LONG getAbsoluteScreenCoord(float resolution, float pos)

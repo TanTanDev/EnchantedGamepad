@@ -2,6 +2,7 @@
 #include "ScriptBindings\SimulateInputBinding.h"
 #include "ScriptBindings\InputBinding.h"
 #include "ScriptBindings\AppSettingsBinding.h"
+#include "ScriptBindings\VectorBinding.h"
 
 #include <iostream>
 extern "C"
@@ -31,10 +32,14 @@ void Script::Load(const char * fileName)
 	luaopen_math(luaState);
 	luaopen_string(luaState);
 	luaopen_table(luaState);
+	
+	// todo: sandbox
+	luaL_openlibs(luaState);
 
 	ScriptBindings::luaopen_input(luaState);
 	ScriptBindings::luaopen_simulateinput(luaState);
 	ScriptBindings::luaopen_appsettings(luaState);
+	ScriptBindings::luaopen_vector(luaState);
 
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{

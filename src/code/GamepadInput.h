@@ -2,6 +2,7 @@
 #include "Singleton.h"
 #include <Windows.h>
 #include <XInput.h>
+#include "Vector.h"
 
 static const int MAX_CONTROLLERS = 4;
 static const float XINPUT_GAMEPAD_THUMB_DEADZONE = 0.2f;
@@ -46,6 +47,7 @@ public:
 
 	float GetStickX(int ID, SIDE side);
 	float GetStickY(int ID, SIDE side);
+	Vector GetStick(int ID, SIDE side);
 
 	bool IsConnected(int ID);
 	void Update(float DeltaTime);
