@@ -130,6 +130,11 @@ float GamepadInput::GetStickY(int ID, SIDE side)
 	return (LengthOfVec2(val, val2) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? val : 0.0f;
 }
 
+Vector GamepadInput::GetStick(int ID, SIDE side)
+{
+	return Vector(GetStickX(ID, side), GetStickY(ID, side));
+}
+
 bool GamepadInput::IsConnected(int ID)
 {
 	return controllers[ID].IsConnected;

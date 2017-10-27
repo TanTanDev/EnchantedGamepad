@@ -1,6 +1,9 @@
 #include "InputBinding.h"
 #include "GamepadInput.h"
 
+// Needed to push vectors
+#include "VectorBinding.h"
+
 extern "C"
 {
 #include <lua.h>
@@ -61,6 +64,18 @@ namespace ScriptBindings
 		lua_pushnumber(L, GamepadInput::GetInstance().GetStickY(0, GamepadInput::RIGHT));
 		return 1;
 	}
+
+
+	static int GetStick(lua_State* L)
+	{
+		//GamepadInput::GetInstance().GetStick(0,);
+		lua_Integer side = luaL_checkinteger(L, 1);
+		Vector stick = GamepadInput::GetInstance().GetStick(0, (GamepadInput::SIDE)side);
+		lua_pushvector(L, stick.x, stick.y);
+		//lua_pushnumber(L, GamepadInput::GetInstance().GetStickY(0, (GamepadInput::SIDE)side));
+		return 1;
+	}
+
 	// todo: find a way to register with this structure
 	static const luaL_Reg Input_Functions[] =
 	{
@@ -90,6 +105,8 @@ namespace ScriptBindings
 		lua_setfield(L, -2, "GetStickLY");
 		lua_pushcfunction(L, GetStickRY);
 		lua_setfield(L, -2, "GetStickRY");
+		lua_pushcfunction(L, GetStick);
+		lua_setfield(L, -2, "GetStick");
 	}
 
 	int luaopen_input(lua_State* L)
@@ -125,5 +142,9 @@ namespace ScriptBindings
 		PushInteger(L, GamepadInput::GAMEPAD_Y, "GAMEPAD_Y");
 		PushInteger(L, GamepadInput::GAMEPAD_LEFT_TRIGGER, "GAMEPAD_LEFT_TRIGGER");
 		PushInteger(L, GamepadInput::GAMEPAD_RIGHT_TRIGGER, "GAMEPAD_RIGHT_TRIGGER");
+
+		// only used to determine what side to fetch joystick data from
+		PushInteger(L, GamepadInput::SIDE::LEFT, "GAMEPAD_LEFT_STICK");
+		PushInteger(L, GamepadInput::SIDE::RIGHT, "GAMEPAD_RIGHT_STICK");
 	}
 }

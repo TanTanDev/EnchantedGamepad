@@ -21,6 +21,10 @@ int main()
 	timer.Start();
 	sf::RenderWindow window(sf::VideoMode(500, 500), "Open Game Controller");
 	bool exitApp = false;
+
+	sf::Vector2i mousePos = sf::Mouse::getPosition();
+	SimulateInput::GetInstance().OnMouseMoved(mousePos.x, mousePos.y);
+
 	while (window.isOpen())
 	{
 		GamepadInput::GetInstance().ButtonHeld(0, GamepadInput::GAMEPAD_A);
@@ -35,7 +39,6 @@ int main()
 			if (event.type == sf::Event::Resized)
 				window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
 		}
-
 		window.clear(sf::Color(38,43,52,255));
 		// Render
 		window.display();
