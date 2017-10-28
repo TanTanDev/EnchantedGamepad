@@ -29,11 +29,11 @@ void SimulateInput::PressKey(int key1, int key2)
 {
 	SendInput(key1, true);
 	if (key2 != 0)
-	{
 		SendInput(key2, true);
-		SendInput(key2, false);
-	}
+
 	SendInput(key1, false);
+	if (key2 != 0)
+		SendInput(key2, false);
 }
 
 void SimulateInput::KeyDown(int key)
@@ -111,6 +111,7 @@ inline LONG getAbsoluteScreenCoord(float resolution, float pos)
 inline void SendInput(int key, bool isDown)
 {
 	INPUT input;
+	//memset(&input, 0, sizeof(INPUT));
 	input.ki.dwFlags = 0;
 	input.ki.time = 0;
 	input.ki.dwFlags = 0;
@@ -131,7 +132,7 @@ inline void SendInput(int key, bool isDown)
 	{
 		input.type = INPUT_KEYBOARD;
 		input.ki.wScan = static_cast<WORD>(MapVirtualKeyW(key, MAPVK_VK_TO_VSC));
-		if (isDown)
+		if (!isDown)
 			input.ki.dwFlags = KEYEVENTF_KEYUP;
 		// Special keys
 		if (key == VK_LEFT || key == VK_RIGHT || key == VK_UP || key == VK_DOWN)

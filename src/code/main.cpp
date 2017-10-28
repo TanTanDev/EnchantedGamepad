@@ -27,7 +27,6 @@ int main()
 
 	while (window.isOpen())
 	{
-		GamepadInput::GetInstance().ButtonHeld(0, GamepadInput::GAMEPAD_A);
 		timer.Update();
 		script.Run(timer.GetDeltaTime());
 

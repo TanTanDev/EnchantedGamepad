@@ -42,8 +42,10 @@ void GamepadInput::Update(float DeltaTime)
 	}
 }
 
-bool GamepadInput::ButtonPressed(int ID, GAMEPAD_BUTTON button)
+bool GamepadInput::ButtonPressed(int ID, GAMEPAD_BUTTON button, SIDE joystickSide)
 {
+	if (button == GAMEPAD_JOYSTICK_LEFT || button == GAMEPAD_JOYSTICK_RIGHT || button == GAMEPAD_JOYSTICK_UP || button == GAMEPAD_JOYSTICK_DOWN)
+		return JoystickPressed(ID, joystickSide, button);
 	if ((controllers[ID].State.Gamepad.wButtons & button) && !(prevStates[ID].Gamepad.wButtons & button))
 		return true;
 	else if (button & GAMEPAD_LEFT_TRIGGER || button & GAMEPAD_RIGHT_TRIGGER)
@@ -52,8 +54,10 @@ bool GamepadInput::ButtonPressed(int ID, GAMEPAD_BUTTON button)
 	return false;
 }
 
-bool GamepadInput::ButtonHeld(int ID, GAMEPAD_BUTTON button)
+bool GamepadInput::ButtonHeld(int ID, GAMEPAD_BUTTON button, SIDE joystickSide)
 {
+	if (button == GAMEPAD_JOYSTICK_LEFT || button == GAMEPAD_JOYSTICK_RIGHT || button == GAMEPAD_JOYSTICK_UP || button == GAMEPAD_JOYSTICK_DOWN)
+		return JoystickHeld(ID, joystickSide, button);
 	if (controllers[ID].State.Gamepad.wButtons & button)
 		return true;
 	else if (button & GAMEPAD_LEFT_TRIGGER || button & GAMEPAD_RIGHT_TRIGGER)
@@ -62,8 +66,10 @@ bool GamepadInput::ButtonHeld(int ID, GAMEPAD_BUTTON button)
 	return false;
 }
 
-bool GamepadInput::ButtonReleased(int ID, GAMEPAD_BUTTON button)
+bool GamepadInput::ButtonReleased(int ID, GAMEPAD_BUTTON button, SIDE joystickSide)
 {
+	if (button == GAMEPAD_JOYSTICK_LEFT || button == GAMEPAD_JOYSTICK_RIGHT || button == GAMEPAD_JOYSTICK_UP || button == GAMEPAD_JOYSTICK_DOWN)
+		return JoystickReleased(ID, joystickSide, button);
 	if (!(controllers[ID].State.Gamepad.wButtons & button) && (prevStates[ID].Gamepad.wButtons & button))
 		return true;
 	else if (button & GAMEPAD_LEFT_TRIGGER || button & GAMEPAD_RIGHT_TRIGGER)
@@ -96,43 +102,113 @@ bool GamepadInput::TriggerReleased(int ID, SIDE side)
 		return (controllers[ID].State.Gamepad.bRightTrigger <= 0 && prevStates[ID].Gamepad.bRightTrigger > 0);
 }
 
-float GamepadInput::GetStickX(int ID, SIDE side)
+//float GamepadInput::GetStickX(int ID, SIDE side, bool getPrevious = false)
+//{
+//	float val = 0.0f;
+//	float val2 = 0.0f;
+//	if (side == LEFT)
+//	{
+//		val = (controllers[ID].State.Gamepad.sThumbLX) / 32767.0f;
+//		val2 = (controllers[ID].State.Gamepad.sThumbLY) / 32767.0f;
+//	}
+//	else
+//	{
+//		val = (controllers[ID].State.Gamepad.sThumbRX) / 32767.0f;
+//		val2 = (controllers[ID].State.Gamepad.sThumbRY) / 32767.0f;
+//	}
+//	return (LengthOfVec2(val, val2) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? val : 0.0f;
+//}
+//
+//float GamepadInput::GetStickY(int ID, SIDE side, bool getPrevious = false)
+//{
+//	float val = 0.0f;
+//	float val2 = 0.0f;
+//	if (side == LEFT)
+//	{
+//		val = (controllers[ID].State.Gamepad.sThumbLY) / 32767.0f;
+//		val2 = (controllers[ID].State.Gamepad.sThumbLX) / 32767.0f;
+//	}
+//	else
+//	{
+//		val = (controllers[ID].State.Gamepad.sThumbRY) / 32767.0f;
+//		val2 = (controllers[ID].State.Gamepad.sThumbRX) / 32767.0f;
+//	}
+//	return (LengthOfVec2(val, val2) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? val : 0.0f;
+//}
+
+Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious)
 {
-	float val = 0.0f;
-	float val2 = 0.0f;
+	XINPUT_STATE state;
+	if (getPrevious)
+		state = prevStates[ID];
+	else
+		state = controllers[ID].State;
+
+	float x = 0.0f;
+	float y = 0.0f;
 	if (side == LEFT)
 	{
-		val = (controllers[ID].State.Gamepad.sThumbLX) / 32767.0f;
-		val2 = (controllers[ID].State.Gamepad.sThumbLY) / 32767.0f;
+		x = state.Gamepad.sThumbLX / 32767.0f;
+		y = state.Gamepad.sThumbLY / 32767.0f;
 	}
 	else
 	{
-		val = (controllers[ID].State.Gamepad.sThumbRX) / 32767.0f;
-		val2 = (controllers[ID].State.Gamepad.sThumbRY) / 32767.0f;
+		x = state.Gamepad.sThumbRX / 32767.0f;
+		y = state.Gamepad.sThumbRY / 32767.0f;
 	}
-	return (LengthOfVec2(val, val2) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? val : 0.0f;
+	return (LengthOfVec2(x, y) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? Vector(x, y) : Vector(0.0f, 0.0f);
 }
 
-float GamepadInput::GetStickY(int ID, SIDE side)
+//Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious = false)
+//{
+//	return Vector(GetStickX(ID, side), GetStickY(ID, side));
+//}
+
+bool GamepadInput::JoystickPressed(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton)
 {
-	float val = 0.0f;
-	float val2 = 0.0f;
-	if (side == LEFT)
-	{
-		val = (controllers[ID].State.Gamepad.sThumbLY) / 32767.0f;
-		val2 = (controllers[ID].State.Gamepad.sThumbLX) / 32767.0f;
-	}
-	else
-	{
-		val = (controllers[ID].State.Gamepad.sThumbRY) / 32767.0f;
-		val2 = (controllers[ID].State.Gamepad.sThumbRX) / 32767.0f;
-	}
-	return (LengthOfVec2(val, val2) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? val : 0.0f;
+	Vector current = GetStick(ID, side);
+	Vector prev = GetStick(ID, side, true);
+	bool currentPressed = checkAxisByButtonJoystick(current, joystickDireciton);
+	bool prevPressed = checkAxisByButtonJoystick(prev, joystickDireciton);
+	if (currentPressed && !prevPressed)
+		return true;
+
+	return false;
 }
 
-Vector GamepadInput::GetStick(int ID, SIDE side)
+bool GamepadInput::JoystickHeld(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton)
 {
-	return Vector(GetStickX(ID, side), GetStickY(ID, side));
+	Vector current = GetStick(ID, side);
+	bool currentPressed = checkAxisByButtonJoystick(current, joystickDireciton);
+	if (currentPressed)
+		return true;
+
+	return false;
+}
+
+bool GamepadInput::JoystickReleased(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton)
+{
+	Vector current = GetStick(ID, side);
+	Vector prev = GetStick(ID, side, true);
+	bool currentPressed = checkAxisByButtonJoystick(current, joystickDireciton);
+	bool prevPressed = checkAxisByButtonJoystick(prev, joystickDireciton);
+	if (!currentPressed && prevPressed)
+		return true;
+
+	return false;
+}
+
+bool GamepadInput::checkAxisByButtonJoystick(Vector axis, GAMEPAD_BUTTON joystickAxis)
+{
+	if (joystickAxis == GAMEPAD_JOYSTICK_LEFT)
+		return (axis.x) < -XINPUT_GAMEPAD_THUMB_DEADZONE;
+	else if (joystickAxis == GAMEPAD_JOYSTICK_RIGHT)
+		return (axis.x) > XINPUT_GAMEPAD_THUMB_DEADZONE;
+	else if (joystickAxis == GAMEPAD_JOYSTICK_UP)
+		return (axis.y) > XINPUT_GAMEPAD_THUMB_DEADZONE;
+	else if (joystickAxis == GAMEPAD_JOYSTICK_DOWN)
+		return (axis.y) < -XINPUT_GAMEPAD_THUMB_DEADZONE;
+	return 0.0f;
 }
 
 bool GamepadInput::IsConnected(int ID)
