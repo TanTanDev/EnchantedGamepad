@@ -26,9 +26,14 @@ public:
 		GAMEPAD_B = 0x2000,
 		GAMEPAD_X = 0x4000,
 		GAMEPAD_Y = 0x8000,
-		// Custom
+		// custom
 		GAMEPAD_LEFT_TRIGGER = 0x10000,
 		GAMEPAD_RIGHT_TRIGGER = 0x20000,
+
+		GAMEPAD_JOYSTICK_LEFT = 0x40000,
+		GAMEPAD_JOYSTICK_RIGHT = 0x80000,
+		GAMEPAD_JOYSTICK_UP = 0x100000,
+		GAMEPAD_JOYSTICK_DOWN = 0x200000
 	};
 	enum SIDE
 	{
@@ -37,17 +42,25 @@ public:
 	};
 	GamepadInput();
 	~GamepadInput();
-	bool ButtonPressed(int ID, GAMEPAD_BUTTON button);
-	bool ButtonHeld(int ID, GAMEPAD_BUTTON button);
-	bool ButtonReleased(int ID, GAMEPAD_BUTTON button);
+	// SIDE is optional
+	bool ButtonPressed(int ID, GAMEPAD_BUTTON button, SIDE joystickSide = SIDE::LEFT);
+	bool ButtonHeld(int ID, GAMEPAD_BUTTON button, SIDE joystickSide = SIDE::LEFT);
+	bool ButtonReleased(int ID, GAMEPAD_BUTTON button, SIDE joystickSide = SIDE::LEFT);
 
 	bool TriggerPressed(int ID, SIDE side);
 	bool TriggerHeld(int ID, SIDE side);
 	bool TriggerReleased(int ID, SIDE side);
 
-	float GetStickX(int ID, SIDE side);
-	float GetStickY(int ID, SIDE side);
-	Vector GetStick(int ID, SIDE side);
+	//float GetStickX(int ID, SIDE side, bool getPrevious);
+	//float GetStickY(int ID, SIDE side, bool getPrevious);
+	Vector GetStick(int ID, SIDE side, bool getPrevious = false);
+
+	bool JoystickPressed(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
+	bool JoystickHeld(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
+	bool JoystickReleased(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
+
+	// if gamepad button joystick points same as axis
+	bool checkAxisByButtonJoystick(Vector axis, GAMEPAD_BUTTON button);
 
 	bool IsConnected(int ID);
 	void Update(float DeltaTime);

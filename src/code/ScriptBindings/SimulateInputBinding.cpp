@@ -72,6 +72,7 @@ namespace ScriptBindings
 		SimulateInput::GetInstance().ScrollMouse(delta);
 		return 0;
 	}
+
 	inline static void PushFunctions(lua_State* L)
 	{
 		lua_pushcfunction(L, KeyUp);

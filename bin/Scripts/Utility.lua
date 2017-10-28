@@ -1,13 +1,23 @@
 local Utility = {}
 
 -- does both input check and simulation action
-function Utility.CheckPress(gamepadButton, simulatedKey)
-	if Input.ButtonPressed(gamepadButton) then
+-- joystickSide is optional if you want to check for joystick "presses"
+function Utility.CheckPress(gamepadButton, simulatedKey, joystickSide)
+	if Input.ButtonPressed(gamepadButton, joystickSide) then
 		SimulateInput.KeyDown(simulatedKey)
-	elseif Input.ButtonReleased(gamepadButton) then
+	elseif Input.ButtonReleased(gamepadButton, joystickSide) then
 		SimulateInput.KeyUp(simulatedKey)
 	end
 end
+
+function Utility.CheckPressMultiple(gamepadButton, simulatedKey1, simulatedKey2)
+	if Input.ButtonPressed(gamepadButton) then
+		SimulateInput.PressKey(simulatedKey1, simulatedKey2)
+	elseif Input.ButtonReleased(gamepadButton, joystickSide) then
+		SimulateInput.KeyUp(simulatedKey1, simulatedKey2)
+	end
+end
+
 
 -- Offsets a position(fromPos) based on left or right stick
 function Utility.SetMousePosCenterOut(fromPos, xDistance, yDistance, stickSide)
@@ -29,6 +39,5 @@ function Utility.MoveMouse(stickSide, speed)
 		SimulateInput.MoveMouse(move:x()*speed, -move:y()*speed)
 	end
 end
-
 
 return Utility
