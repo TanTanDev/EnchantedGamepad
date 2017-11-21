@@ -6,6 +6,7 @@ public:
 	Script();
 	~Script();
 	void Load(const char* fileName);
+	void Unload();
 	void Run(float dt);
 
 	bool Get(const char* name, int& value);

@@ -6,7 +6,7 @@ project "OpenGameController"
     kind "ConsoleApp"
     language "C++"
     targetdir "../bin/%{cfg.architecture}"
-    files { "code/**.h", "code/**.cpp", "code/**.c" }
+    files { "code/**.h", "code/**.hpp", "code/**.cpp", "code/**.c", "code/**.frag" }
     includedirs { "code" }
     links { "mscoree" }
     --flags { "Unicode" }
@@ -72,3 +72,13 @@ project "OpenGameController"
         links{"jpeg"}
         links{"winmm"}
         links{"gdi32"}
+
+    filter{}
+        includedirs{ "../extlibs/include/rapidjson"}
+    ---- OpenGL
+    --filter{}
+    --    includedirs{ "../extlibs/include"}
+    --   -- libdirs{ "../extlibs/lib/%{cfg.architecture}/GLFW"}
+    --    libdirs{ "../extlibs/lib/%{cfg.architecture}/GL"}
+    --    links{"opengl32"}
+    --    --links{"glfw3"}
