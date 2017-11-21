@@ -20,8 +20,7 @@ Script::Script()
 
 Script::~Script()
 {
-	if(luaState && scriptLoaded)
-		lua_close(luaState);
+	Unload();
 }
 
 void Script::Load(const char * fileName)
@@ -40,7 +39,6 @@ void Script::Load(const char * fileName)
 	ScriptBindings::luaopen_simulateinput(luaState);
 	ScriptBindings::luaopen_appsettings(luaState);
 	ScriptBindings::luaopen_vector(luaState);
-
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{
 		printf("Cannot load script: %s\n", fileName);
@@ -58,6 +56,12 @@ void Script::Load(const char * fileName)
 			//printf("Script does not have the Function Update()");
 		lua_pop(luaState, 1);
 	}
+}
+
+void Script::Unload()
+{
+	if (luaState && scriptLoaded)
+		lua_close(luaState);
 }
 
 void Script::Run(float dt)
