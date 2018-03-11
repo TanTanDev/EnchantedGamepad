@@ -12,6 +12,7 @@ public:
 	bool Get(const char* name, int& value);
 
 	const std::string& GetFileName();
+	const bool HasUpdateFunction();
 private:
 	std::string fileName;
 	lua_State* luaState;

@@ -8,6 +8,7 @@ private:
 	std::vector<std::string> fileNames;
 public:
 	void FindScripts(const std::string& directory);
+	void DeleteFileByIndex(int index);
 	const std::vector<std::string>& GetScriptPaths();
 	Application();
 	~Application();

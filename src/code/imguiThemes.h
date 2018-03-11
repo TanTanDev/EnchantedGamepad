@@ -5,11 +5,11 @@ void SetupTheme()
 {
 	ImGuiStyle * style = &ImGui::GetStyle();
 
-	style->WindowPadding = ImVec2(15, 15);
+	style->WindowPadding = ImVec2(10, 15);
 	style->WindowRounding = 5.0f;
 	style->FramePadding = ImVec2(5, 5);
 	style->FrameRounding = 4.0f;
-	style->ItemSpacing = ImVec2(12, 8);
+	style->ItemSpacing = ImVec2(7, 8);
 	style->ItemInnerSpacing = ImVec2(8, 6);
 	style->IndentSpacing = 25.0f;
 	style->ScrollbarSize = 15.0f;

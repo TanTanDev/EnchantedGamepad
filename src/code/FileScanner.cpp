@@ -2,25 +2,16 @@
 
 #include <iostream>
 #include <thread>
-/*WINBASEAPI BOOL WINAPI ReadDirectoryChangesW(HANDLE hDirectory,
-	LPVOID lpBuffer, DWORD nBufferLength,
-	BOOL bWatchSubtree, DWORD dwNotifyFilter,
-	LPDWORD lpBytesReturned,
-	LPOVERLAPPED lpOverlapped,
-	LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-	);*/
+
 
 void FileScanner::BeginWatchDirectory(LPCWSTR path)
 {
-	//std::thread d();
-	//std::thread da(&FileScanner::watchDirectory,this, path);
 	isWatching = true;
 	fileScanThread = std::thread(&FileScanner::watchDirectory, this, path);
 }
 
 void FileScanner::watchDirectory(LPCWSTR path)
 {
-	//DIRECTORY_INFO DirInfo[MAX_DIRS];
 	char buf[2048];
 	DWORD nRet;
 	BOOL result = TRUE;
@@ -60,10 +51,6 @@ void FileScanner::watchDirectory(LPCWSTR path)
 			&nRet,// number of bytes returned
 			&PollingOverlap,// pointer to structure needed for overlapped I/O
 			NULL);
-		
-		
-		//DirInfo[0].hDir.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
-		//WaitForSingleObject(PollingOverlap.hEvent, INFINITE);
 		HANDLE handles[2];
 		handles[0] = PollingOverlap.hEvent;
 		handles[1] = exitEvent;
@@ -87,33 +74,7 @@ void FileScanner::watchDirectory(LPCWSTR path)
 			strcpy(filename, "");
 			int filenamelen = WideCharToMultiByte(CP_ACP, 0, pNotify->FileName, pNotify->FileNameLength / 2, filename, sizeof(filename), NULL, NULL);
 			filename[pNotify->FileNameLength / 2] = ' ';
-			//switch (pNotify->Action)
-			//{
-			//	case FILE_ACTION_MO
-			//default:
-			//	break;
-			//}
-			/*switch (pNotify->Action)
-			{
-			case FILE_ACTION_ADDED:
-				printf("\nThe file is added to the directory: [%s] \n", filename);
-				break;
-			case FILE_ACTION_REMOVED:
-				printf("\nThe file is removed from the directory: [%s] \n", filename);
-				break;
-			case FILE_ACTION_MODIFIED:
-				printf("\nThe file is modified. This can be a change in the time stamp or attributes: [%s]\n", filename);
-				break;
-			case FILE_ACTION_RENAMED_OLD_NAME:
-				printf("\nThe file was renamed and this is the old name: [%s]\n", filename);
-				break;
-			case FILE_ACTION_RENAMED_NEW_NAME:
-				printf("\nThe file was renamed and this is the new name: [%s]\n", filename);
-				break;
-			default:
-				printf("\nDefault error.\n");
-				break;
-			}*/
+
 			std::string changedFileName = std::string(filename).substr(0, filenamelen);
 			bool isDuplicate = false;
 			for (auto file : changedFiles)
@@ -122,7 +83,7 @@ void FileScanner::watchDirectory(LPCWSTR path)
 				if (file == changedFileName)
 					isDuplicate = true;
 			}
-			if(!isDuplicate)
+			if (!isDuplicate)
 				changedFiles.push_back(changedFileName);
 			offset += pNotify->NextEntryOffset;
 
