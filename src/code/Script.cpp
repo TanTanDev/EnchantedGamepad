@@ -3,6 +3,8 @@
 #include "ScriptBindings\InputBinding.h"
 #include "ScriptBindings\AppSettingsBinding.h"
 #include "ScriptBindings\VectorBinding.h"
+#include "ScriptBindings\EditorBinding.h"
+#include "scriptBindings\PrintBinding.h"
 
 #include <iostream>
 extern "C"
@@ -15,7 +17,6 @@ extern "C"
 Script::Script()
 	:scriptLoaded(false)
 {
-
 }
 
 Script::~Script()
@@ -23,8 +24,11 @@ Script::~Script()
 	Unload();
 }
 
-void Script::Load(const char * fileName)
+void Script::Load(const char* fileName)
 {
+	//fileName.assign(fileName);
+	this->fileName = std::string(fileName);
+	//fileName = std::string(fileName);
 	luaState = luaL_newstate();
 
 	luaopen_base(luaState);
@@ -39,6 +43,8 @@ void Script::Load(const char * fileName)
 	ScriptBindings::luaopen_simulateinput(luaState);
 	ScriptBindings::luaopen_appsettings(luaState);
 	ScriptBindings::luaopen_vector(luaState);
+	ScriptBindings::luaopen_editor(luaState);
+	ScriptBindings::luaopen_print(luaState);
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{
 		printf("Cannot load script: %s\n", fileName);
@@ -60,6 +66,7 @@ void Script::Load(const char * fileName)
 
 void Script::Unload()
 {
+	fileName.empty();
 	if (luaState && scriptLoaded)
 		lua_close(luaState);
 }
@@ -81,6 +88,11 @@ void Script::Run(float dt)
 			lua_pop(luaState, 1);
 		}
 	}
+}
+
+const std::string& Script::GetFileName()
+{
+	return fileName;
 }
 
 bool Script::Get(const char * name, int& value)

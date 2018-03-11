@@ -1,23 +1,37 @@
 #include "Application.h"
 #include "Script.h"
-//#include <vector>
-//#include <string>
-//#include <SFML/graphics.hpp>
-//#include "json\json.hpp"
-#include "JsonHelpers.h"
+#include <string>
+#include <iostream>
+#include <experimental\filesystem>
 
+namespace fs = std::experimental::filesystem;
 Application::Application()
 {
-	rapidjson::Document document = JsonHelpers::CreateOrOpen(L"bajs.json", applicationData.GetDefaultData());
-
-	applicationData.Serialize(document);
 }
 
 Application::~Application()
 {
 }
 
-void Application::loadData()
+void Application::FindScripts(const std::string& directory)
 {
+	// iterate files in current folder
+	for (fs::directory_iterator it(directory); it != fs::directory_iterator(); ++it)
+	{
+		std::string path = it->path().generic_string();
 
+		int imageNumber;
+		bool isLuaFile = (it->path().extension() == ".lua");
+		if (!isLuaFile)
+		{
+			continue;
+		}
+		std::cout << "filepath: " << path << std::endl;
+		fileNames.push_back(path);
+	}
+}
+
+const std::vector<std::string>& Application::GetScriptPaths()
+{
+	return fileNames;
 }

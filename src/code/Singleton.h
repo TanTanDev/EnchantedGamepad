@@ -1,6 +1,6 @@
 #pragma once
-#include <assert.h>
 
+// lazy mans singleton
 template<class T>
 class Singleton
 {
