@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 typedef struct lua_State lua_State;
 class Script
 {
@@ -8,9 +9,11 @@ public:
 	void Load(const char* fileName);
 	void Unload();
 	void Run(float dt);
-
 	bool Get(const char* name, int& value);
+
+	const std::string& GetFileName();
 private:
+	std::string fileName;
 	lua_State* luaState;
 	int luaRefUpdate;
 	bool scriptLoaded;
