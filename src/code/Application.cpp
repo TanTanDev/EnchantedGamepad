@@ -4,6 +4,7 @@
 #include <iostream>
 #include <experimental\filesystem>
 
+
 namespace fs = std::experimental::filesystem;
 Application::Application()
 {
@@ -26,9 +27,15 @@ void Application::FindScripts(const std::string& directory)
 		{
 			continue;
 		}
-		std::cout << "filepath: " << path << std::endl;
 		fileNames.push_back(path);
 	}
+}
+
+void Application::DeleteFileByIndex(int index)
+{
+	std::experimental::filesystem::remove(fileNames[index]);
+	auto itemIter = fileNames.begin() + index;
+	fileNames.erase(itemIter, itemIter + 1);
 }
 
 const std::vector<std::string>& Application::GetScriptPaths()

@@ -6,6 +6,9 @@
 #include "ScriptBindings\EditorBinding.h"
 #include "scriptBindings\PrintBinding.h"
 
+// for printing error messages
+#include "ImguiConsole.h"
+
 #include <iostream>
 extern "C"
 {
@@ -16,6 +19,7 @@ extern "C"
 
 Script::Script()
 	:scriptLoaded(false)
+	,luaRefUpdate(-1)
 {
 }
 
@@ -47,8 +51,7 @@ void Script::Load(const char* fileName)
 	ScriptBindings::luaopen_print(luaState);
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{
-		printf("Cannot load script: %s\n", fileName);
-		printf(lua_tostring(luaState, -1));
+		ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
 		scriptLoaded = false;
 		lua_close(luaState);
 	}
@@ -58,8 +61,10 @@ void Script::Load(const char* fileName)
 		lua_getglobal(luaState, "Update");
 		if (lua_isfunction(luaState, -1))
 			luaRefUpdate = luaL_ref(luaState, LUA_REGISTRYINDEX);
-		//else
-			//printf("Script does not have the Function Update()");
+		else
+		{
+			luaRefUpdate = -1;
+		}
 		lua_pop(luaState, 1);
 	}
 }
@@ -84,7 +89,7 @@ void Script::Run(float dt)
 		lua_pushnumber(luaState, dt);
 		if (0 != lua_pcall(luaState, 1, 0, 0))
 		{
-			printf("%s\n", lua_tostring(luaState, -1));
+			ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
 			lua_pop(luaState, 1);
 		}
 	}
@@ -93,6 +98,11 @@ void Script::Run(float dt)
 const std::string& Script::GetFileName()
 {
 	return fileName;
+}
+
+const bool Script::HasUpdateFunction()
+{
+	return (luaRefUpdate != -1);
 }
 
 bool Script::Get(const char * name, int& value)
