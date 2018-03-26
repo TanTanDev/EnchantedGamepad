@@ -31,11 +31,20 @@ namespace ScriptBindings
 		}
 		return 1;
 	}
+
+	static int clearLog(lua_State* L)
+	{
+		ImguiConsole::GetInstance().ClearLog(true);
+		return 1;
+	}
+
 	int luaopen_print(lua_State* L)
 	{
 		lua_getglobal(L, "_G");
 		lua_pushcfunction(L, handlePrint);
 		lua_setfield(L, -2, "print");
+		lua_pushcfunction(L, clearLog);
+		lua_setfield(L, -2, "ClearLog");
 		lua_pop(L, 1);
 		return 1;
 	}

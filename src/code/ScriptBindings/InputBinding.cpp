@@ -50,23 +50,23 @@ namespace ScriptBindings
 		return 1;
 	}
 
-	//static int GetStickLX(lua_State* L)
-	//{
-	//	lua_pushnumber(L, GamepadInput::GetInstance().GetStickX(0, GamepadInput::LEFT));
-	//	return 1;
-	//}
-	//
+	static int GetStickLX(lua_State* L)
+	{
+		lua_pushnumber(L, GamepadInput::GetInstance().GetStick(0, GamepadInput::LEFT).x);
+		return 1;
+	}
+	
 	//static int GetStickRX(lua_State* L)
 	//{
 	//	lua_pushnumber(L, GamepadInput::GetInstance().GetStickX(0, GamepadInput::RIGHT));
 	//	return 1;
 	//}
 	//
-	//static int GetStickLY(lua_State* L)
-	//{
-	//	lua_pushnumber(L, GamepadInput::GetInstance().GetStickY(0, GamepadInput::LEFT));
-	//	return 1;
-	//}
+	static int GetStickLY(lua_State* L)
+	{
+		lua_pushnumber(L, GamepadInput::GetInstance().GetStick(0, GamepadInput::LEFT).y);
+		return 1;
+	}
 	//
 	//static int GetStickRY(lua_State* L)
 	//{
@@ -106,12 +106,12 @@ namespace ScriptBindings
 		lua_setfield(L, -2, "ButtonHeld");
 		lua_pushcfunction(L, ButtonReleased);
 		lua_setfield(L, -2, "ButtonReleased");
-		//lua_pushcfunction(L, GetStickLX);
-		//lua_setfield(L, -2, "GetStickLX");
+		lua_pushcfunction(L, GetStickLX);
+		lua_setfield(L, -2, "GetStickLX");
 		//lua_pushcfunction(L, GetStickRX);
 		//lua_setfield(L, -2, "GetStickRX");
-		//lua_pushcfunction(L, GetStickLY);
-		//lua_setfield(L, -2, "GetStickLY");
+		lua_pushcfunction(L, GetStickLY);
+		lua_setfield(L, -2, "GetStickLY");
 		//lua_pushcfunction(L, GetStickRY);
 		//lua_setfield(L, -2, "GetStickRY");
 		lua_pushcfunction(L, GetStick);

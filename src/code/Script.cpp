@@ -6,6 +6,9 @@
 #include "ScriptBindings\EditorBinding.h"
 #include "scriptBindings\PrintBinding.h"
 
+// used to clear out bindings when unloading
+#include "ScriptBinding.h"
+
 // for printing error messages
 #include "ImguiConsole.h"
 
@@ -66,14 +69,24 @@ void Script::Load(const char* fileName)
 			luaRefUpdate = -1;
 		}
 		lua_pop(luaState, 1);
+
+		//lua_getglobal(luaState, "bindur");
+		//if (lua_isnumber(luaState, -1))
+		//{
+		//	std::cout << "HELLOOO: " << luaL_checknumber(luaState, -1) << std::endl;
+		//	lua_pushnumber(luaState, 3598759875);
+		//	std::cout << "HELLOOO: " << luaL_checknumber(luaState, -1) << std::endl;
+		//}
 	}
 }
 
 void Script::Unload()
 {
-	fileName.empty();
+	ScriptBinding::GetInstance().ClearBinding();
+	fileName.clear();
 	if (luaState && scriptLoaded)
 		lua_close(luaState);
+	scriptLoaded = false;
 }
 
 void Script::Run(float dt)
@@ -103,6 +116,11 @@ const std::string& Script::GetFileName()
 const bool Script::HasUpdateFunction()
 {
 	return (luaRefUpdate != -1);
+}
+
+lua_State * Script::GetLuaState()
+{
+	return luaState;
 }
 
 bool Script::Get(const char * name, int& value)
