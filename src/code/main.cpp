@@ -7,6 +7,9 @@
 #include "Application.h"
 #include "FileScanner.h"
 #include "ImguiConsole.h"
+#include "ScriptBinding.h"
+
+#include "ScriptBindings\EditorBinding.h"
 
 #include <SFML/graphics.hpp>
 #include <SFML/window.hpp>
@@ -15,6 +18,8 @@
 #include <iostream>
 #include <sstream>
 #include <filesystem>
+#include <stdlib.h> // wsctombs
+#include <fstream>
 
 #include "imgui\imgui.h"
 #include "imgui-sfml\imgui-SFML.h"
@@ -70,15 +75,61 @@ int main()
 		ImGui::Begin("Programs", 0); //ImGuiWindowFlags_MenuBar);// ImGui::SameLine();
 		if (ImGui::Button("create new", ImVec2(100.0f, 30.0f)))
 		{
-			
+			OPENFILENAME ofn;
+			char szFileName[MAX_PATH] = "";
+			ZeroMemory(&ofn, sizeof(ofn));
+
+			ofn.lStructSize = sizeof(OPENFILENAME); // SEE NOTE BELOW
+			ofn.hwndOwner = NULL;// GetActiveWindow();
+			ofn.lpstrFilter = L"script (*.lua)\0*.lua\0All Files (*.*)\0*.*\0";
+			ofn.lpstrInitialDir = L"../Scripts";
+			ofn.lpstrFile = (LPWSTR)szFileName;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.Flags = OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+			ofn.lpstrDefExt = L"lua";
+			if (GetSaveFileName(&ofn))
+			{
+				char buffer[260];
+				wcstombs(buffer, ofn.lpstrFile, 260);
+				HANDLE hFile;
+				std::ofstream outFile(buffer);
+				outFile << "function Update(dt)\n\nend";
+				outFile.close();
+				FD.FindScripts("Scripts/");
+			}
 		}
 		ImGui::SameLine();
 		auto scripts = FD.GetScriptPaths();
-		if (ImGui::Button("delete", ImVec2(50.5f, 30.0f)))
+
+		bool isAnyScriptSelected = (selectedScriptByIndex != -1);
+		if (ImGui::Button("delete", ImVec2(50.5f, 30.0f))&& isAnyScriptSelected)
 		{
-			if (selectedScriptByIndex != -1)
-				FD.DeleteFileByIndex(selectedScriptByIndex);
+			isRunningScript = false;
+			ImGui::OpenPopup("Delete?");
 		}
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(sf::Color(140,140,140)));
+		if (ImGui::BeginPopupModal("Delete?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(sf::Color(255,50,50)));
+			ImGui::Text("%s\nWill be deleted.\nThis operation cannot be undone!\n\n", script.GetFileName().c_str());
+			ImGui::PopStyleColor();
+			ImGui::Separator();
+			if (ImGui::Button("OK"))
+			{
+				script.Unload();
+				FD.DeleteFileByIndex(selectedScriptByIndex);
+				ImGui::CloseCurrentPopup();
+				selectedScriptByIndex = -1;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopStyleColor();
+
 		ImGui::Text("Files");
 		ImGui::BeginChild("scriptFileList", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
 
@@ -123,8 +174,9 @@ int main()
 		ImGui::Text(script.GetFileName().c_str());
 		if (ImGui::Checkbox("hot reload", &autoHotReload))
 		{
+			auto fullPath = FD.GetWorkingDirectory().append("Scripts");
 			if (autoHotReload)
-				fileScanner.BeginWatchDirectory(L"Scripts");
+				fileScanner.BeginWatchDirectory(fullPath.c_str());
 			else
 				fileScanner.Stop();
 		}
@@ -152,11 +204,70 @@ int main()
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(sf::Color(30, 60, 150)));
 		if (ImGui::Button("Open explorer", ImVec2(100.0f, 50.0f)))
 		{
-			ShellExecute(NULL, L"open", L"Scripts", NULL, NULL, SW_SHOWDEFAULT);
+			auto currentDir = FD.GetWorkingDirectory();
+			currentDir.append("/Scripts");
+			ShellExecute(NULL, L"open", currentDir.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 		}
 		ImGui::PopStyleColor();
-		fileScanner.Update(0.0f);
+
 		ImGui::End();
+		ImGui::Begin("Bindings");
+		auto& bindings = ScriptBinding::GetInstance().GetBindings();
+		ImGui::BeginChild("scriptFileList", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+		for (int i = 0; i < bindings.size(); i++)
+		{
+			auto bindingIt = &bindings[i];
+
+			//float *dapointer = &bindings[i].bindingData.f;
+			if (bindingIt->editType == Binding::EditType::DragFloat)
+			{
+				if (ImGui::DragFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f, 0.01f, bindingIt->MinValue.f, bindingIt->MaxValue.f))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::InputFloat)
+			{
+				if (ImGui::InputFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::DragInt)
+			{
+				if (ImGui::DragInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i, 1.0f, bindingIt->MinValue.i, bindingIt->MaxValue.i))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::InputInt)
+			{
+				if (ImGui::InputInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::SliderFloat)
+			{
+				if (ImGui::SliderFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f, bindingIt->MinValue.f, bindingIt->MaxValue.f))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::SliderInt)
+			{
+				if (ImGui::SliderInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i, bindingIt->MinValue.i, bindingIt->MaxValue.i))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::ToggleBox)
+			{
+				if (ImGui::Checkbox(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.b))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::ToggleButton)
+			{
+				if (ImGui::Button(bindingIt->GlobalName.c_str()))
+				{
+					bindingIt->bindingData.b != bindingIt->bindingData.b;
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+				}
+			}
+		}
+		ImGui::EndChild();
+		ImGui::End();
+
+
+		fileScanner.Update(0.0f);
 		ImGui::SFML::Render(window);
 
 		window.display();
