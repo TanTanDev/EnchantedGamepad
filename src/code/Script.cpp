@@ -32,14 +32,15 @@
 #include <iostream>
 extern "C"
 {
-	#include <lua.h>
-	#include <lualib.h>
-	#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 Script::Script()
-	:scriptLoaded(false)
-	,luaRefUpdate(-1)
+	: scriptLoaded(false)
+	, luaRefUpdate(-1)
+	, luaRefStart(-1)
 {
 }
 
@@ -55,11 +56,6 @@ void Script::Load(const char* fileName)
 	//fileName = std::string(fileName);
 	luaState = luaL_newstate();
 
-	luaopen_base(luaState);
-	luaopen_math(luaState);
-	luaopen_string(luaState);
-	luaopen_table(luaState);
-	
 	// todo: sandbox
 	luaL_openlibs(luaState);
 
@@ -80,36 +76,33 @@ void Script::Load(const char* fileName)
 	{
 		scriptLoaded = true;
 		lua_getglobal(luaState, "Update");
-		if (lua_isfunction(luaState, -1))
-			luaRefUpdate = luaL_ref(luaState, LUA_REGISTRYINDEX);
-		else
-		{
-			luaRefUpdate = -1;
-		}
-		lua_pop(luaState, 1);
+		luaRefUpdate = luaL_ref(luaState, LUA_REGISTRYINDEX);
 
-		//lua_getglobal(luaState, "bindur");
-		//if (lua_isnumber(luaState, -1))
-		//{
-		//	std::cout << "HELLOOO: " << luaL_checknumber(luaState, -1) << std::endl;
-		//	lua_pushnumber(luaState, 3598759875);
-		//	std::cout << "HELLOOO: " << luaL_checknumber(luaState, -1) << std::endl;
-		//}
+		lua_getglobal(luaState, "Start");
+		luaRefStart = luaL_ref(luaState, LUA_REGISTRYINDEX);
 	}
 }
 
 void Script::Unload()
 {
-	ScriptBinding::GetInstance().ClearBinding();
+	// unregister funcitons
+	if (luaRefUpdate)
+		luaL_unref(luaState, LUA_REGISTRYINDEX, luaRefUpdate);
+	if (luaRefStart)
+		luaL_unref(luaState, LUA_REGISTRYINDEX, luaRefStart);
+	luaRefUpdate = -1;
+	luaRefStart = -1;
+
+	ScriptBinding::GetInstance().ClearBindings();
 	fileName.clear();
 	if (luaState && scriptLoaded)
 		lua_close(luaState);
 	scriptLoaded = false;
 }
 
-void Script::Run(float dt)
+void Script::InvokeUpdate(float dt)
 {
-	if(!scriptLoaded)
+	if (!scriptLoaded)
 	{
 		return;
 	}
@@ -119,6 +112,19 @@ void Script::Run(float dt)
 		lua_rawgeti(luaState, LUA_REGISTRYINDEX, luaRefUpdate);
 		lua_pushnumber(luaState, dt);
 		if (0 != lua_pcall(luaState, 1, 0, 0))
+		{
+			ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
+			lua_pop(luaState, 1);
+		}
+	}
+}
+
+void Script::InvokeStart()
+{
+	if (luaRefStart)
+	{
+		lua_rawgeti(luaState, LUA_REGISTRYINDEX, luaRefStart);
+		if (0 != lua_pcall(luaState, 0, 0, 0))
 		{
 			ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
 			lua_pop(luaState, 1);
@@ -136,7 +142,12 @@ const bool Script::HasUpdateFunction()
 	return (luaRefUpdate != -1);
 }
 
-lua_State * Script::GetLuaState()
+const bool Script::HasStartFunction()
+{
+	return (luaRefStart != -1);
+}
+
+lua_State* Script::GetLuaState()
 {
 	return luaState;
 }
@@ -155,7 +166,7 @@ bool Script::Get(const char * name, int& value)
 	}
 	else
 	{
-		value = luaL_checkinteger(luaState,-1);
+		value = luaL_checkinteger(luaState, -1);
 		return true;
 	}
 	return false;
