@@ -24,15 +24,18 @@ public:
 	~Script();
 	void Load(const char* fileName);
 	void Unload();
-	void Run(float dt);
+	void InvokeUpdate(float dt);
+	void InvokeStart();
 	bool Get(const char* name, int& value);
 
 	const std::string& GetFileName();
 	const bool HasUpdateFunction();
+	const bool HasStartFunction();
 	lua_State* GetLuaState();
 private:
 	std::string fileName;
 	lua_State* luaState;
 	int luaRefUpdate;
+	int luaRefStart;
 	bool scriptLoaded;
 };
