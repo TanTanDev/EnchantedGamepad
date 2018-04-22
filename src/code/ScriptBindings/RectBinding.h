@@ -15,16 +15,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
+typedef struct lua_State lua_State;
+typedef class Rect Rect;
 
-// Currently functionality is implemented in lua binding
-class Vector
+namespace ScriptBindings
 {
-public:
-	Vector()
-		: x(0.0f)
-		, y(0.0f) {}
-	Vector(float x, float y)
-		: x(x)
-		, y(y) {}
-	float x, y;
-};
+	int luaopen_rect(lua_State* L);
+
+	// other bindings  should be able to create vectors
+	int lua_pushrect(lua_State* L, float x, float y, float w, float h);
+	//Vector* lua_checkvector(lua_State* L, int n);
+	Rect* lua_checkrect(lua_State* L, int n);
+
+}

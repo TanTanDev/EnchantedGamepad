@@ -1,3 +1,19 @@
+// This file is part of Enchanted Gamepad
+// Copyright (C) <2018> Jonatan Olsson
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "InputBinding.h"
 #include "GamepadInput.h"
 
@@ -50,36 +66,58 @@ namespace ScriptBindings
 		return 1;
 	}
 
+	// helper function for joystick to reduce code duplication
+	Vector GetStickThreshold(lua_State* L, GamepadInput::SIDE side, int thresholdArgIndex = 1)
+	{
+		if (lua_isnumber(L, thresholdArgIndex))
+		{
+			float threshold = (float)lua_tonumber(L, 1);
+			return GamepadInput::GetInstance().GetStick(0, side, false, threshold);
+		}
+		else // default threshold
+			GamepadInput::GetInstance().GetStick(0, side);
+	}
+
 	static int GetStickLX(lua_State* L)
 	{
-		lua_pushnumber(L, GamepadInput::GetInstance().GetStick(0, GamepadInput::LEFT).x);
+		float stickAxisValue = GetStickThreshold(L, GamepadInput::LEFT).x;
+		lua_pushnumber(L, stickAxisValue);
 		return 1;
 	}
 	
-	//static int GetStickRX(lua_State* L)
-	//{
-	//	lua_pushnumber(L, GamepadInput::GetInstance().GetStickX(0, GamepadInput::RIGHT));
-	//	return 1;
-	//}
-	//
-	static int GetStickLY(lua_State* L)
+	static int GetStickRX(lua_State* L)
 	{
-		lua_pushnumber(L, GamepadInput::GetInstance().GetStick(0, GamepadInput::LEFT).y);
+		float stickAxisValue = GetStickThreshold(L, GamepadInput::RIGHT).x;
+		lua_pushnumber(L, stickAxisValue);
 		return 1;
 	}
-	//
-	//static int GetStickRY(lua_State* L)
-	//{
-	//	lua_pushnumber(L, GamepadInput::GetInstance().GetStickY(0, GamepadInput::RIGHT));
-	//	return 1;
-	//}
 
+	static int GetStickLY(lua_State* L)
+	{
+		float stickAxisValue = GetStickThreshold(L, GamepadInput::LEFT).y;
+		lua_pushnumber(L, stickAxisValue);
+		return 1;
+	}
+
+	static int GetStickRY(lua_State* L)
+	{
+		float stickAxisValue = GetStickThreshold(L, GamepadInput::RIGHT).x;
+		lua_pushnumber(L, stickAxisValue);
+		return 1;
+	}
 
 	static int GetStick(lua_State* L)
 	{
 		//GamepadInput::GetInstance().GetStick(0,);
 		lua_Integer side = luaL_checkinteger(L, 1);
-		Vector stick = GamepadInput::GetInstance().GetStick(0, (GamepadInput::SIDE)side);
+		Vector stick;
+		if (lua_isnumber(L, 2))
+		{
+			float threshold = luaL_checknumber(L, 2);
+			stick = GamepadInput::GetInstance().GetStick(0, (GamepadInput::SIDE)side, false, threshold);
+		}
+		else
+			stick = GamepadInput::GetInstance().GetStick(0, (GamepadInput::SIDE)side);
 		lua_pushvector(L, stick.x, stick.y);
 		//lua_pushnumber(L, GamepadInput::GetInstance().GetStickY(0, (GamepadInput::SIDE)side));
 		return 1;
@@ -108,12 +146,12 @@ namespace ScriptBindings
 		lua_setfield(L, -2, "ButtonReleased");
 		lua_pushcfunction(L, GetStickLX);
 		lua_setfield(L, -2, "GetStickLX");
-		//lua_pushcfunction(L, GetStickRX);
-		//lua_setfield(L, -2, "GetStickRX");
+		lua_pushcfunction(L, GetStickRX);
+		lua_setfield(L, -2, "GetStickRX");
 		lua_pushcfunction(L, GetStickLY);
 		lua_setfield(L, -2, "GetStickLY");
-		//lua_pushcfunction(L, GetStickRY);
-		//lua_setfield(L, -2, "GetStickRY");
+		lua_pushcfunction(L, GetStickRY);
+		lua_setfield(L, -2, "GetStickRY");
 		lua_pushcfunction(L, GetStick);
 		lua_setfield(L, -2, "GetStick");
 	}

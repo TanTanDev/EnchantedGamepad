@@ -1,0 +1,72 @@
+ApiCheatCheet
+[AppSettings]
+members:
+	ScreenResolutionX
+	ScreenResolutionY
+
+[GLOBAL]
+	variableName: name of the assigned value
+	editType: Like, DragFloat, SliderInt, InputInt
+	(defaultValue) = Bind(variableName, defaultValue, editType, minVal, maxVal)
+	GetWindowRect
+
+[Input]
+functions:
+	bool ButtonPressed(gamepadInput, joystickSide = GAMEPAD_LEFT_STICK)
+	bool ButtonHeld(gamepadInput, joystickSide = GAMEPAD_LEFT_STICK)
+	bool ButtonREleased(gamepadInput, joystickSide = GAMEPAD_LEFT_STICK)
+	float GetStickRX(threshold = 0.2)
+	float GetStickRY(threshold = 0.2)
+	float GetStickLX(threshold = 0.2)
+	float GetStickLY(threshold = 0.2)
+	Vector GetStick(stickSide, threshold = 0.2)
+
+Members:
+	GAMEPAD_DPAD_UP
+	GAMEPAD_DPAD_DOWN
+	GAMEPAD_DPAD_LEFT
+	GAMEPAD_DPAD_RIGHT
+	GAMEPAD_START
+	GAMEPAD_BACK
+	GAMEPAD_LEFT_THUMB
+	GAMEPAD_RIGHT_THUMB
+	GAMEPAD_LEFT_BUTTON
+	GAMEPAD_RIGHT_BUTTON
+	GAMEPAD_B
+	GAMEPAD_X
+	GAMEPAD_A
+	GAMEPAD_Y
+	GAMEPAD_LEFT_TRIGGER
+	GAMEPAD_RIGHT_TRIGGER
+	GAMEPAD_JOYSTICK_LEFT
+	GAMEPAD_JOYSTICK_RIGHT
+	GAMEPAD_JOYSTICK_UP
+	GAMEPAD_JOYSTICK_DOWN
+	// only used to determine what side to fetch joystick data from
+	GAMEPAD_LEFT_STICK
+	GAMEPAD_RIGHT_STICK
+
+[SimulateInput]
+functions:
+	void KeyUp(keyOrMouseBtn)
+	void KeyDown(keyOrMouseBtn)
+	void PressKey(keyOrMouseBtn)
+	void SetMousePos(Vector)
+	void MoveMouse(Vector)
+	void ScrollMouse(float)
+	Vector GetMousePos()
+Members:
+	MOUSE_LEFT
+	MOUSE_RIGHT
+	KEY_ + KEYNAME		examples of keyname:(A,B,C, ADD, DIVIDE, LSHIFT)
+
+[Vector]
+functions:
+	initialize vector object with Vector(x,y)
+	float x()
+	float y()
+	void Normalize()
+	void Length()
+	void Set(x, y)
+	float Dot()
+	Vector Zero() // returns a vector with 0,0

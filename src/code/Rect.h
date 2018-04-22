@@ -17,14 +17,21 @@
 #pragma once
 
 // Currently functionality is implemented in lua binding
-class Vector
+class Rect
 {
 public:
-	Vector()
-		: x(0.0f)
-		, y(0.0f) {}
-	Vector(float x, float y)
-		: x(x)
-		, y(y) {}
-	float x, y;
+	Rect()
+		: X(0.0f)
+		, Y(0.0f)
+		, Width(0.0f)
+		, Height(0.0f)
+	{}
+
+	Rect(float x, float y, float width, float height)
+		: X(x)
+		, Y(y)
+		, Width(width)
+		, Height(height)
+	{}
+	float X, Y, Width, Height;
 };

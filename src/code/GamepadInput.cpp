@@ -1,3 +1,19 @@
+// This file is part of Enchanted Gamepad
+// Copyright (C) <2018> Jonatan Olsson
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "GamepadInput.h"
 #include <Windows.h>
 #include <XInput.h>
@@ -136,7 +152,7 @@ bool GamepadInput::TriggerReleased(int ID, SIDE side)
 //	return (LengthOfVec2(val, val2) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? val : 0.0f;
 //}
 
-Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious)
+Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious, float threshold)
 {
 	XINPUT_STATE state;
 	if (getPrevious)
@@ -156,7 +172,7 @@ Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious)
 		x = state.Gamepad.sThumbRX / 32767.0f;
 		y = state.Gamepad.sThumbRY / 32767.0f;
 	}
-	return (LengthOfVec2(x, y) > XINPUT_GAMEPAD_THUMB_DEADZONE) ? Vector(x, y) : Vector(0.0f, 0.0f);
+	return (LengthOfVec2(x, y) > threshold) ? Vector(x, y) : Vector(0.0f, 0.0f);
 }
 
 //Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious = false)
