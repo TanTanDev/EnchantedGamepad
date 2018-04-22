@@ -1,3 +1,19 @@
+// This file is part of Enchanted Gamepad
+// Copyright (C) <2018> Jonatan Olsson
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "Script.h"
 #include "ScriptBindings\SimulateInputBinding.h"
 #include "ScriptBindings\InputBinding.h"
@@ -5,6 +21,7 @@
 #include "ScriptBindings\VectorBinding.h"
 #include "ScriptBindings\EditorBinding.h"
 #include "scriptBindings\PrintBinding.h"
+#include "ScriptBindings\rectBinding.h"
 
 // used to clear out bindings when unloading
 #include "ScriptBinding.h"
@@ -52,6 +69,7 @@ void Script::Load(const char* fileName)
 	ScriptBindings::luaopen_vector(luaState);
 	ScriptBindings::luaopen_editor(luaState);
 	ScriptBindings::luaopen_print(luaState);
+	ScriptBindings::luaopen_rect(luaState);
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{
 		ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
