@@ -206,7 +206,7 @@ int main()
 		timer.Update();
 		fileScanner.Update(timer.GetDeltaTime());
 		if (isRunningScript)
-			script.Run(timer.GetDeltaTime());
+			script.InvokeUpdate(timer.GetDeltaTime());
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -294,7 +294,7 @@ int main()
 		ImGui::PopStyleColor();
 
 		ImGui::Text("Files");
-		ImGui::BeginChild("scriptFileList", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+		ImGui::BeginChild("scriptFileList", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
 
 		if (fileScanner.IsPollReady())
 		{
@@ -307,6 +307,8 @@ int main()
 					ImguiConsole::GetInstance().HandlePrint("--- Hot reloading ---", ImguiConsole::LogType::unique);
 					script.Unload();
 					script.Load(scripts[selectedScriptByIndex].c_str());
+					if (script.HasStartFunction())
+						script.InvokeStart();
 				}
 			}
 		}
@@ -362,6 +364,9 @@ int main()
 			}
 			else if (isRunningScript)
 			{
+				if(script.HasStartFunction())
+					script.InvokeStart();
+
 				// reset mouse position to where the mouse is
 				sf::Vector2i mousePos = sf::Mouse::getPosition();
 				SimulateInput::GetInstance().OnMouseMoved(mousePos.x, mousePos.y);
@@ -388,7 +393,7 @@ int main()
 		if (tweakWithKeyboard)
 			ImGui::Columns(2);
 
-		ImGui::BeginChild("scriptFileList", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+		ImGui::BeginChild("scriptFileList", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
 		for (int i = 0; i < bindings.size(); i++)
 		{
 			auto bindingIt = &bindings[i];
@@ -453,7 +458,7 @@ int main()
 		if (tweakWithKeyboard)
 		{
 			ImGui::NextColumn();
-			ImGui::BeginChild("scriptFileListTweakBinding", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+			ImGui::BeginChild("scriptFileListTweakBinding", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
 			for (int i = 0; i < bindings.size(); i++)
 			{
 				EditorKeyBinding& currentKeyBinding = editorKeyBindings[i];

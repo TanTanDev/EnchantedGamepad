@@ -54,7 +54,7 @@ std::vector<Binding>& ScriptBinding::GetBindings()
 	return bindings;
 }
 
-void ScriptBinding::ClearBinding()
+void ScriptBinding::ClearBindings()
 {
 	bindings.clear();
 }

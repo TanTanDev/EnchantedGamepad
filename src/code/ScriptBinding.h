@@ -99,5 +99,5 @@ public:
 
 	void Bind(Binding binding);
 	std::vector<Binding>& GetBindings();
-	void ClearBinding();
+	void ClearBindings();
 };

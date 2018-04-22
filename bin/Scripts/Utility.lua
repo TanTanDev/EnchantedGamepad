@@ -41,7 +41,7 @@ function Utility.SetMousePosCenterOut(fromPos, xDistance, yDistance, stickSide)
 	end
 
 	local stickInput = Input.GetStick(stickSide)
-	-- reset position when 'resting joystick'
+	-- reset position when joystick is 'resting'
 	if stickInput:Length() <= 0 then
 		if forceSet or prevLengthWasAbove then
 			SimulateInput.SetMousePos(fromPos)
