@@ -50,11 +50,10 @@ Rect AppSettings::GetWindowRectByName(const char* name)
 {
 	HWND windowHandle = FindWindowA(0, name);
 	RECT outRect;
-	GetWindowRect(windowHandle, &outRect);
-
-	// weird bug i found on League of legends window, if it is in fullscreen
-	// the hwnd handel becomes "unused", how to detect that?
-	if (outRect.bottom < 0 || outRect.top < 0 || outRect.left < 0 || outRect.right < 0)
+	bool isWindowAvaliable = GetWindowRect(windowHandle, &outRect);
+	// if window is fullscreen, we might get weird rect values
+	bool windowRectFullscreen = (outRect.bottom < 0 || outRect.top < 0 || outRect.left < 0 || outRect.right < 0);
+	if(isWindowAvaliable || windowRectFullscreen)
 	{
 		outRect.top = 0;
 		outRect.left = 0;
