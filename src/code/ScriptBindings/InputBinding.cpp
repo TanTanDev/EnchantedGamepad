@@ -123,6 +123,19 @@ namespace ScriptBindings
 		return 1;
 	}
 
+	static int SetVibration(lua_State* L)
+	{
+		float str = 1.0f;
+		GamepadInput::SIDE side = GamepadInput::SIDE::LEFT;
+		float time = 0.0f;
+		str = luaL_checknumber(L, 1);
+		side = (GamepadInput::SIDE)luaL_checkint(L, 2);
+		if(lua_isnumber(L,3))
+			time = luaL_checknumber(L, 3);
+		GamepadInput::GetInstance().SetVibration(str, (GamepadInput::SIDE)side, time);
+		return 0;
+	}
+
 	// todo: find a way to register with this structure
 	static const luaL_Reg Input_Functions[] =
 	{
@@ -154,6 +167,8 @@ namespace ScriptBindings
 		lua_setfield(L, -2, "GetStickRY");
 		lua_pushcfunction(L, GetStick);
 		lua_setfield(L, -2, "GetStick");
+		lua_pushcfunction(L, SetVibration);
+		lua_setfield(L, -2, "SetVibration");
 	}
 
 	int luaopen_input(lua_State* L)

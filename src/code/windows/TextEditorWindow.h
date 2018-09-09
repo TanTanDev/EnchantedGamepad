@@ -15,28 +15,21 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include <string>
-typedef struct lua_State lua_State;
-class Script
+// todo: help, can't seem to typedef TextEditorClass
+#include "../ImGuiColorTextEdit/TextEditor.h"
+
+typedef class Application Application;
+typedef class Script Script;
+
+class TextEditorWindow
 {
-public:
-	Script();
-	~Script();
-	void Load(const char* fileName);
-	void Unload();
-	void InvokeUpdate(float dt);
-	void InvokeStart();
-	bool Get(const char* name, int& value);
-
-	const std::string& GetFileName();
-	const bool HasUpdateFunction();
-	const bool HasStartFunction();
-	lua_State* GetLuaState();
-
 private:
-	std::string fileName;
-	lua_State* luaState;
-	int luaRefUpdate;
-	int luaRefStart;
-	bool scriptLoaded;
+	TextEditor textEditor;
+	bool isFileLoaded;
+	std::string currentFileName;
+public:
+	TextEditorWindow();
+	~TextEditorWindow();
+
+	void Render(Application& FD, Script& script);
 };

@@ -17,19 +17,33 @@
 #pragma once
 // description: this class is currently used to bind together all the logic
 #include <vector>
+#include <map>
 #include <filesystem>
+
+struct FolderData
+{
+	int childCount = 0;
+	std::string folderName;
+	std::vector<std::string> filesNames;
+	std::vector<std::string> fullPathfilesNames;
+	std::vector<FolderData> subfolders;
+};
+
 
 class Application
 {
 private:
-	std::vector<std::string> fileNames;
 	std::experimental::filesystem::v1::path currentWorkingDirectory;
+	void FindFilesRecursive(std::string directory, FolderData& currentFolder);
 
 public:
 	std::experimental::filesystem::v1::path GetWorkingDirectory();
 	void FindScripts(const std::string& directory);
 	void DeleteFileByIndex(int index);
 	const std::vector<std::string>& GetScriptPaths();
+
+	const FolderData& GetRootFolder();
+	FolderData rootFolder;
 
 	Application();
 	~Application();

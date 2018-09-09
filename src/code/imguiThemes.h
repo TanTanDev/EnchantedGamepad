@@ -24,7 +24,7 @@ void SetupTheme()
 	style->WindowPadding = ImVec2(10, 15);
 	style->WindowRounding = 5.0f;
 	style->FramePadding = ImVec2(5, 5);
-	style->FrameRounding = 4.0f;
+	style->FrameRounding = 2.0f;
 	style->ItemSpacing = ImVec2(7, 8);
 	style->ItemInnerSpacing = ImVec2(8, 6);
 	style->IndentSpacing = 25.0f;
@@ -32,7 +32,6 @@ void SetupTheme()
 	style->ScrollbarRounding = 9.0f;
 	style->GrabMinSize = 5.0f;
 	style->GrabRounding = 3.0f;
-
 	style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 	style->Colors[ImGuiCol_WindowBg] = ImVec4(38/255.0f, 43/255.0f, 52/255.0f, 1.00f);
@@ -57,7 +56,7 @@ void SetupTheme()
 	style->Colors[ImGuiCol_Button] = ImVec4(10/255.0f, 10/255.0f, 19/255.0f, 1.00f);
 	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-	style->Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_Header] = ImVec4(0.0f/255.0f,18.0f/255.0f,0.0f/255.0f, 1.00f);
 	style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 	style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
 	style->Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);

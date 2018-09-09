@@ -27,6 +27,7 @@ namespace fs = std::experimental::filesystem;
 Application::Application()
 {
 	currentWorkingDirectory = fs::current_path();
+	rootFolder.folderName = "Scripts";
 }
 
 Application::~Application()
@@ -38,36 +39,56 @@ std::experimental::filesystem::v1::path Application::GetWorkingDirectory()
 	return currentWorkingDirectory;
 }
 
-void Application::FindScripts(const std::string& directory)
+void Application::FindFilesRecursive(std::string directory, FolderData& currentFolder)
 {
-	fileNames.clear();
-	std::error_code testun;
-	fs::v1::path fullPath = currentWorkingDirectory;
-	fullPath.append(directory);
+	std::error_code errorCode;
 	// iterate files in current folder
-	for (fs::directory_iterator it(directory, testun); it != fs::directory_iterator(); ++it)
+	for (fs::directory_iterator it(directory, errorCode); it != fs::directory_iterator(); ++it)
 	{
 		std::string path = it->path().generic_string();
-
-		int imageNumber;
+		auto fileName = it->path().filename().string();
 		bool isLuaFile = (it->path().extension() == ".lua");
-		if (!isLuaFile)
+		bool isDirectory = !(it->path().has_extension());
+
+		if (isLuaFile)
 		{
-			continue;
+			currentFolder.filesNames.push_back(fileName);
+			currentFolder.fullPathfilesNames.push_back(path);
+			
 		}
-		fileNames.push_back(path);
+		else if (isDirectory)
+		{
+			FolderData newFolderData;
+			newFolderData.childCount = 0;
+			newFolderData.folderName = fileName;
+			currentFolder.subfolders.push_back(newFolderData);
+			FindFilesRecursive(path, currentFolder.subfolders.back());
+		}
 	}
-	std::cout << testun;
+}
+
+void Application::FindScripts(const std::string& directory)
+{
+	//fileNames.clear();
+	fs::v1::path fullPath = currentWorkingDirectory;
+	fullPath.append(directory);
+	FindFilesRecursive(directory, rootFolder);
 }
 
 void Application::DeleteFileByIndex(int index)
 {
-	std::experimental::filesystem::remove(fileNames[index]);
-	auto itemIter = fileNames.begin() + index;
-	fileNames.erase(itemIter, itemIter + 1);
+	//std::experimental::filesystem::remove(fileNames[index]);
+	//auto itemIter = fileNames.begin() + index;
+	//fileNames.erase(itemIter, itemIter + 1);
 }
 
 const std::vector<std::string>& Application::GetScriptPaths()
 {
-	return fileNames;
+	return rootFolder.filesNames;
+	// TODO: insert return statement here
+}
+
+const FolderData & Application::GetRootFolder()
+{
+	return rootFolder;
 }

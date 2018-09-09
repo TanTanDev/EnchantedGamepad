@@ -15,17 +15,32 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
+#include <vector>
 typedef class Application Application;
 typedef class FileScanner FileScanner;
 typedef class Script Script;
+typedef class FolderData FolderData;
+typedef class BindingSettings BindingSettings;
 
 class ProgramsWindow
 {
 private:
+	struct SelectedScriptFolderRef
+	{
+		int ScriptIndex;
+		std::vector<int> recursiveFolderIndex;
+	};
+	SelectedScriptFolderRef selectedScriptFolderRef;
+
 	int selectedScriptByIndex;
+	
+	// cashed vector we can work with every frame
+	std::vector<int> currentRecursiveFolderIndex;
+
+	void renderBrowserRecursive(FolderData* folderData, Script& fd, bool& isRunningScript, int currentSubfolderIndex);
 public:
-	ProgramsWindow();
+	ProgramsWindow(Application& FD);
 	~ProgramsWindow();
 
-	void Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript);
+	void Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript, BindingSettings& bindingSettings);
 };

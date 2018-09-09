@@ -1,0 +1,75 @@
+Application stuff
+create new script
+delete script
+move script in hiearchy
+-appData
+-scripData
+-scriptProfiles
+
+count = Edit(Spline(Vector(0,0),Vector(0,0)))
+middleOutRange = Edit(100)
+wtf = Edit(Vector)
+mode = Edit(true)
+
+
+Edit function, check what type it recieves,
+then save it in a list of listeners
+
+SplineData
+
+sctruct SplineProperty : public EditProperty
+{
+	Spline spline;
+
+
+	Draw()
+	{
+		wer
+	}
+	Input()
+}
+
+
+
+
+TODO NOW:
+JSON script and hiearchy binding
+
+
+applicaitonData
+{
+	"scipts":
+	{
+		"directories" :
+		[
+			"LeagueOfLegends",
+			"Warcraft 3",
+			"Star craft"
+		]
+	}
+}
+
+
+// Scripts
+{
+	"fileName": "lolJarvan",
+	"hiearchyPlacement": 2,
+	"directory": 2,
+	"description": "jarvan"
+}
+
+// scriptProfiles, saved variables for scripts
+{
+	"profiles":
+	[
+		{
+			"scripName": "lolJarvan",
+			"properties":
+			[
+				{
+					"spline1": 
+				}
+			]
+		}
+	]
+}

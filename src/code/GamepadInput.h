@@ -75,6 +75,8 @@ public:
 	bool JoystickHeld(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
 	bool JoystickReleased(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
 
+	void SetVibration(float strength, SIDE side, float time);
+
 	// if gamepad button joystick points same as axis
 	bool checkAxisByButtonJoystick(Vector axis, GAMEPAD_BUTTON button);
 

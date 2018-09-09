@@ -35,6 +35,12 @@ GamepadInput::GamepadInput()
 		ZeroMemory(&controllers[i], sizeof(XINPUT_STATE));
 		ZeroMemory(&prevStates[i], sizeof(XINPUT_STATE));
 	}
+	_XINPUT_CAPABILITIES des;
+	XInputGetCapabilities(0, XINPUT_FLAG_GAMEPAD, &des);
+	if (des.Flags & XINPUT_CAPS_WIRELESS)
+	{
+		std::cout << "WIRELESS CONTROLLER!\n";
+	}
 }
 
 GamepadInput::~GamepadInput()
@@ -212,6 +218,15 @@ bool GamepadInput::JoystickReleased(int ID, SIDE side, GAMEPAD_BUTTON joystickDi
 		return true;
 
 	return false;
+}
+
+void GamepadInput::SetVibration(float strength, SIDE side, float time)
+{
+	if(side == SIDE::LEFT)
+		controllers[0].Vibration.wLeftMotorSpeed = strength*65535;
+	if (side == SIDE::RIGHT)
+		controllers[0].Vibration.wRightMotorSpeed = strength*65535;
+	controllers[0].VibrationTimer = time;
 }
 
 bool GamepadInput::checkAxisByButtonJoystick(Vector axis, GAMEPAD_BUTTON joystickAxis)

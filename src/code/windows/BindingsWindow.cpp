@@ -37,6 +37,15 @@ BindingsWindow::~BindingsWindow()
 void BindingsWindow::Render(Application & FD, FileScanner & fileScanner, Script & script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed)
 {
 	ImGui::Begin("Bindings");
+	
+	//const char* testu[] = { "aaa" };
+	//static int itemReffu = -1;
+	//ImGui::Text("Current setting: ");
+	//if (ImGui::Combo("", &itemReffu,testu, 1))
+	//{
+	//
+	//}
+	//ImGui::SameLine();
 	ImGui::Checkbox("Tweakable with keyboard", &tweakWithKeyboard);
 
 	auto& bindings = ScriptBinding::GetInstance().GetBindings();

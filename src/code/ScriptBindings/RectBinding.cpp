@@ -162,7 +162,6 @@ namespace ScriptBindings
 		luaL_newmetatable(L, tableName);
 
 		Generate_Rect_Methods(L);
-
 		return 1;
 	}
 

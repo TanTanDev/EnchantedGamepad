@@ -1,0 +1,73 @@
+Safety: @critical
+ ☐ Trust files, newly added files, will be marked as unsafe, user has to manually accept them @critical
+
+Editor Functionallity:
+ ☐ Input for setting gamepad controlls on editor binding
+ ☐ Edit text, take a look at: https://github.com/BalazsJako/ImGuiColorTextEdit
+ ☐ browse folders
+
+Script Bindings:
+  ☐ Bind gamepad controlls
+  ☐ allow user to collapse different bindings under a title
+
+Refactoring:
+
+ETC:
+ ☐ # Keep track of and cleanup unreleased keys.
+ ☐ # PressKey should have overload (for multiple buttons?)
+ ☐ # Floating point perfect mouse positioning
+
+Scripting API:
+ ☐ instead of string for editorBindingType use enums(actually lua numbers) look at inputbinding.cpp
+ ☐ error handling of binding symbols while running, not allowed?
+ ☐ Require(), change working directory example: https://stackoverflow.com/questions/4125971/setting-the-global-lua-path-variable-from-c-c/4156038#4156038
+ ☐ Controller vibration
+In depth current task:
+ ☐ Save binding settings, option to load settings. Save them to root/BindingSettings/...
+ ☐ Create new file -> create new json file
+ ☐ check when binding is added to window if the default setting 
+ ☐ 1: Draw list of settings
+ example:
+   LeagueOfLegends.lua
+   {
+     "fullPath": "scripts/leagueOfLegends",
+     "defaultSettingsIndex": 0,
+
+     "templateBindings":
+     [
+       "mouseSpeed": 100,
+       "isBlueSide": true,
+     ]
+     "settings":
+     [
+       {
+         "name": "Singed",
+         "bindings":
+         [
+           "mouseSpeed": 100,
+           "isBlueSide": false,
+         ]
+       },
+       {
+         "name": "Viktor",
+         "bindings":
+         [
+           "mouseSpeed": 100,
+           "isBlueSide": false,
+         ]
+       }
+     ]
+   }
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+ ✔ main.cpp extract to files or functions for imgui rendering @done (18-05-01 21:48) @project(Refactoring)
+ ✔ Get specific window name rect @done (18-04-22 22:35) @project(Scripting API)
+ ✔ timer class: SCRATCH THAT, TimerManager helper lua file instead! @done (18-04-22 22:28) @project(Scripting API)
+ ✔ function Start(), to begin when starting software @done (18-04-22 22:28) @project(Scripting API)
+ ✔ Licence agreement, README and files @critical @done (18-04-22 21:12) @project(Safety)
+ ✔ bug: mouse position should reset when starting the script @done (18-04-14 13:45) @project(ETC)
+ ✔ bug: min max set starting value to max @done (18-04-14 13:40) @project(Script Bindings)
+ ✔ Bind windows keyboard presses to tweak values @done (18-04-14 13:28) @project(Editor Functionallity)
+ ✔ wait for key @done (18-04-09 20:23) @project(In depth current task)
+ ✔ '-x'/'+x' bound @done (18-04-09 20:23) @project(In depth current task)
+ ✔ '-'/'+' unbound @done (18-04-09 20:23) @project(In depth current task)
