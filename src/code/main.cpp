@@ -30,6 +30,7 @@
 #include "windows\SelectedScriptWindow.h"
 #include "windows\BindingsWindow.h"
 #include "windows\TextEditorWindow.h"
+#include "windows\ControllerViewWindow.h"
 
 // REMOVe
 #include "Rect.h"
@@ -78,6 +79,7 @@ int main()
 	SelectedScriptWindow selectedScriptWindow;
 	BindingsWindow bindingWindow;
 	TextEditorWindow textEditorWindow;
+	ControllerViewWindow controllerViewWindow;
 
 	BindingSettings bindingSettings;
 
@@ -106,12 +108,12 @@ int main()
 			{
 				window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
 			}
-			//if (event.type == sf::Event::KeyPressed)
-			//{
-			//	anyKeyPressed = event.key.code;
-			//}
-			//else if(event.type == sf::Event::KeyReleased)
-			//	anyKeyPressed = sf::Keyboard::Key::Unknown;
+			if (event.type == sf::Event::KeyPressed)
+			{
+				anyKeyPressed = event.key.code;
+			}
+			else if(event.type == sf::Event::KeyReleased)
+				anyKeyPressed = sf::Keyboard::Key::Unknown;
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
 		window.clear(sf::Color(200, 200, 200, 255));
@@ -123,6 +125,7 @@ int main()
 		selectedScriptWindow.Render(app, fileScanner, script, isRunningScript, autoHotReload);
 		bindingWindow.Render(app, fileScanner, script, timer, anyKeyPressed);
 		textEditorWindow.Render(app, script);
+		controllerViewWindow.Render();
 		
 		fileScanner.Update(0.0f);
 		ImGui::SFML::Render(window);

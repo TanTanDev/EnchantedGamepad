@@ -181,6 +181,19 @@ Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious, float thresho
 	return (LengthOfVec2(x, y) > threshold) ? Vector(x, y) : Vector(0.0f, 0.0f);
 }
 
+float GamepadInput::GetTrigger(int ID, SIDE side)
+{
+	if (side == LEFT)
+	{
+		return controllers[ID].State.Gamepad.bLeftTrigger/255.0f;
+	}
+	else
+	{
+		return  controllers[ID].State.Gamepad.bRightTrigger / 255.0f;
+	}
+	return 0.0f;
+}
+
 //Vector GamepadInput::GetStick(int ID, SIDE side, bool getPrevious = false)
 //{
 //	return Vector(GetStickX(ID, side), GetStickY(ID, side));

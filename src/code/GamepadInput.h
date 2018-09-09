@@ -70,6 +70,7 @@ public:
 	//float GetStickX(int ID, SIDE side, bool getPrevious);
 	//float GetStickY(int ID, SIDE side, bool getPrevious);
 	Vector GetStick(int ID, SIDE side, bool getPrevious = false, float threshold = XINPUT_GAMEPAD_THUMB_DEADZONE);
+	float GetTrigger(int ID, SIDE side);
 
 	bool JoystickPressed(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
 	bool JoystickHeld(int ID, SIDE side, GAMEPAD_BUTTON joystickDireciton);
