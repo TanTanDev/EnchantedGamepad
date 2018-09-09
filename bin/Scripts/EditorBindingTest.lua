@@ -1,3 +1,4 @@
+function Start()
 Utility = require("Scripts/Utility" )
 dist = Bind("dist", 4, "SliderFloat",0,200)
 fromX = Bind("fromX", 400, "SliderFloat", 0, 1800)
@@ -6,7 +7,7 @@ mouseSpeed = Bind("mouseSpeed", 0.1,"SliderFloat",0,3)
 --daBool = Bind("daBool", true)
 
 print(dist)
-
+end
 
 --test1 = Bind("test1", 1, "InputFloat")
 --test2 = Bind("test2", 1, "DragFloat")

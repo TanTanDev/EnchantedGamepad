@@ -5,12 +5,10 @@ members:
 	ScreenResolutionY
 
 [GLOBAL]
-	-- params for Bind()
-	-- variableName: name of the assigned value
-	-- editType: Like, DragFloat, SliderInt, InputInt
+	variableName: name of the assigned value
+	editType: Like, DragFloat, SliderInt, InputInt
 	(defaultValue) = Bind(variableName, defaultValue, editType, minVal, maxVal)
-
-	GetWindowRect(name)
+	GetWindowRect
 
 [Input]
 functions:

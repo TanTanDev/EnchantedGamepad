@@ -48,7 +48,7 @@ end
 
 function TimerManager.SetTimer(time, loop, callback)
 	TimerManager.RefCount = TimerManager.RefCount + 1
-	timerRef = TimerManager.RefCount
+	local timerRef = TimerManager.RefCount
 	local newTimer = TimerData:New(timerRef, time, loop, callback)
 	table.insert(TimerManager.Timers, newTimer)
 end

@@ -45,13 +45,13 @@ namespace ScriptBindings
 				std::cout << "not a string! DO SOMETHING!?!\n";
 			}
 		}
-		return 1;
+		return 0;
 	}
 
 	static int clearLog(lua_State* L)
 	{
 		ImguiConsole::GetInstance().ClearLog(true);
-		return 1;
+		return 0;
 	}
 
 	int luaopen_print(lua_State* L)
