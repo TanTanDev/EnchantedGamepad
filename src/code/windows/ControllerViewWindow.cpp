@@ -20,6 +20,9 @@
 
 #include "imgui-sfml\imgui-SFML.h"
 
+// only used for min() right now
+#include <algorithm>
+
 
 ControllerViewWindow::ControllerViewWindow()
 {
@@ -94,10 +97,12 @@ ControllerViewWindow::ControllerViewWindow()
 
 	backSprite.setTexture(spriteSheetTexture);
 	backSprite.setTextureRect(sf::IntRect(34, 54, 32, 29));
-	backSprite.setPosition(sf::Vector2f(147, 170));
+	backSprite.setPosition(sf::Vector2f(147+32, 170));
+	backSprite.setScale(-1,1);
 	backSpriteActive.setTexture(spriteSheetTexture);
 	backSpriteActive.setTextureRect(sf::IntRect(67, 54, 32, 29));
-	backSpriteActive.setPosition(sf::Vector2f(147, 170));
+	backSpriteActive.setPosition(sf::Vector2f(147+32, 170));
+	backSpriteActive.setScale(-1, 1);
 
 	startSprite.setTexture(spriteSheetTexture);
 	startSprite.setTextureRect(sf::IntRect(34, 54, 32, 29));
@@ -133,6 +138,28 @@ ControllerViewWindow::ControllerViewWindow()
 	aSpriteActive.setTexture(spriteSheetTexture);
 	aSpriteActive.setTextureRect(sf::IntRect(340, 76, 31, 31));
 	aSpriteActive.setPosition(sf::Vector2f(305, 185));
+
+
+	lDpadSprite.setTexture(spriteSheetTexture);
+	lDpadSprite.setTextureRect(sf::IntRect(320, 1, 25, 24));
+	lDpadSprite.setPosition(sf::Vector2f(90+26, 220+25));
+	lDpadSprite.setScale(-1, 1);
+	rDpadSprite.setTexture(spriteSheetTexture);
+	rDpadSprite.setTextureRect(sf::IntRect(320, 1, 25, 24));
+	rDpadSprite.setPosition(sf::Vector2f(90+48, 220+25));
+	uDpadSprite.setTexture(spriteSheetTexture);
+	uDpadSprite.setTextureRect(sf::IntRect(320, 1, 25, 24));
+	uDpadSprite.setPosition(sf::Vector2f(90 + 26, 220 + 25));
+	uDpadSprite.rotate(-90.0f);
+	dDpadSprite.setTexture(spriteSheetTexture);
+	dDpadSprite.setTextureRect(sf::IntRect(320, 1, 25, 24));
+	dDpadSprite.setPosition(sf::Vector2f(90 + 26+25, 220 + 25+23));
+	dDpadSprite.rotate(90.0f);
+
+	//sf::Sprite lDpadSprite;
+	//sf::Sprite rDpadSprite;
+	//sf::Sprite uDpadSprite;
+	//sf::Sprite dDpadSprite;
 }
 
 ControllerViewWindow::~ControllerViewWindow()
@@ -143,7 +170,7 @@ void ControllerViewWindow::Render()
 {
 	GamepadInput input = GamepadInput::GetInstance();
 	ImGui::Begin("ControllerView", 0);
-	drawTexture.clear(sf::Color::White);
+	drawTexture.clear(sf::Color::Transparent);
 //	ImGui::Image(tex);
 	sf::Sprite t;
 
@@ -170,11 +197,20 @@ void ControllerViewWindow::Render()
 	else
 		drawTexture.draw(rJoystickSprite);
 
-	drawTexture.draw(dpadSprite);
 	if(input.ButtonHeld(0, GamepadInput::GAMEPAD_LEFT_SHOULDER))
 		drawTexture.draw(lButtonSpriteActive);
 	else
 		drawTexture.draw(lButtonSprite);
+	
+	drawTexture.draw(dpadSprite);
+	if(input.ButtonHeld(0, GamepadInput::GAMEPAD_DPAD_LEFT))
+		drawTexture.draw(lDpadSprite);
+	if (input.ButtonHeld(0, GamepadInput::GAMEPAD_DPAD_RIGHT))
+		drawTexture.draw(rDpadSprite);
+	if (input.ButtonHeld(0, GamepadInput::GAMEPAD_DPAD_UP))
+		drawTexture.draw(uDpadSprite);
+	if (input.ButtonHeld(0, GamepadInput::GAMEPAD_DPAD_DOWN))
+		drawTexture.draw(dDpadSprite);
 
 	if (input.ButtonHeld(0, GamepadInput::GAMEPAD_RIGHT_SHOULDER))
 		drawTexture.draw(rButtonSpriteActive);
@@ -231,7 +267,17 @@ void ControllerViewWindow::Render()
 	auto drawList = ImGui::GetWindowDrawList();
 	ImVec2 uv0 = ImVec2(0,0);
 	ImVec2 uv1 = ImVec2(1,1);
-	drawList->AddImage(textureHandle, windowPos + sf::Vector2f(5, 30), windowPos + windowSize + sf::Vector2f(-5, -5), uv0, uv1);
+
+	sf::Vector2f size = windowSize;
+	// fit and keep perspective
+	auto texSize = drawTexture.getSize();
+	float scaledHeight = size.x / texSize.x;
+	float scaledWidth = size.y / texSize.y;
+	float scale = std::min(scaledWidth, scaledHeight);
+	size.x = texSize.x*scale;
+	size.y = texSize.y*scale;
+
+	drawList->AddImage(textureHandle, windowPos + sf::Vector2f(5, 30), windowPos + size + sf::Vector2f(-5, -5), uv0, uv1);
 	//drawList->AddImage((void*)tex.getNativeHandle(), windowSize + sf::Vector2f(20, 50), windowSize + sf::Vector2f(392, 392));//, uv0, uv1);
 	//drawList->AddImage((void*)tex.getNativeHandle(), windowSize + sf::Vector2f(50, 70), windowSize + sf::Vector2f(300, 300),sf::Vector2f(0.5,0.5), sf::Vector2f(1,1));
 	ImGui::End();
