@@ -31,6 +31,10 @@ public:
 	sf::Sprite rJoystickSprite;
 	sf::Sprite rJoystickSpriteActive;
 	sf::Sprite dpadSprite;
+	sf::Sprite lDpadSprite;
+	sf::Sprite rDpadSprite;
+	sf::Sprite uDpadSprite;
+	sf::Sprite dDpadSprite;
 	sf::Sprite backSprite;
 	sf::Sprite backSpriteActive;
 	sf::Sprite startSprite;
