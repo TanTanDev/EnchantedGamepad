@@ -42,6 +42,15 @@ ScriptBinding::~ScriptBinding()
 
 void ScriptBinding::Bind(Binding binding)
 {
+	// check if already bound
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		if (bindings[i].GlobalName == binding.GlobalName)
+		{
+			std::cout << "already registered binding: " << binding.GlobalName.c_str();
+			return;
+		}
+	}
 	bindings.push_back(binding);
 	//Binding binding = bindings[bindingsCount];
 	//binding.bindType = dataType;

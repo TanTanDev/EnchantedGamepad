@@ -23,6 +23,7 @@
 #include "../FileScanner.h"
 #include "../Script.h"
 #include "../ImguiConsole.h"
+#include "../ScriptBinding.h"
 
 SelectedScriptWindow::SelectedScriptWindow()
 {
@@ -69,6 +70,11 @@ void SelectedScriptWindow::Render(Application& FD, FileScanner& fileScanner, Scr
 			// reset mouse position to where the mouse is
 			sf::Vector2i mousePos = sf::Mouse::getPosition();
 			SimulateInput::GetInstance().OnMouseMoved(mousePos.x, mousePos.y);
+		}
+		else
+		{
+			// remove bindings, they will be re-attached when starting
+			ScriptBinding::GetInstance().ClearBindings();
 		}
 	}
 	ImGui::PopStyleColor(2);

@@ -37,7 +37,7 @@ private:
 	// cashed vector we can work with every frame
 	std::vector<int> currentRecursiveFolderIndex;
 
-	void renderBrowserRecursive(FolderData* folderData, Script& fd, bool& isRunningScript, int currentSubfolderIndex);
+	int renderBrowserRecursive(FolderData* folderData, Script& fd, bool& isRunningScript, int currentSubfolderIndex, int currentFileTotalCount);
 public:
 	ProgramsWindow(Application& FD);
 	~ProgramsWindow();
