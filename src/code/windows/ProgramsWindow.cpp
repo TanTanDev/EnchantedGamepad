@@ -28,7 +28,8 @@
 #include <fstream>
 #include <iostream>
 
-void ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& script, bool& isRunningScript, int currentSubfolderIndex)
+// currentFileTotalCount: every file we iterate will update this value, used to differentiate same filenames by pushing this id
+int ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& script, bool& isRunningScript, int currentSubfolderIndex, int currentFileTotalCount = 0)
 {
 	// first entry gets added, subfolders will increment this element later
 	if (currentSubfolderIndex == 0)
@@ -43,7 +44,7 @@ void ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& scri
 		for (int i = 0; i < folderData->fullPathfilesNames.size(); i++)
 		{
 			++selection;
-
+			currentFileTotalCount++;
 			bool isSelected = false;
 
 			// compare if the current recursive index array is the same as the other one
@@ -75,6 +76,9 @@ void ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& scri
 			}
 			auto fullPathFileName = folderData->fullPathfilesNames[i].c_str();
 			auto fileName = folderData->filesNames[i].c_str();
+
+			// set unique id incase there are filename duplicates
+			ImGui::PushID(currentFileTotalCount);
 			if (ImGui::Selectable(fileName, isSelected))
 			{
 				// selected script build recursive index!
@@ -86,6 +90,8 @@ void ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& scri
 				script.Unload();
 				script.Load(fullPathFileName);
 			}
+			ImGui::PopID();
+
 			if (isSelected)
 				ImGui::PopStyleColor(3);
 		}
@@ -94,10 +100,15 @@ void ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& scri
 		for (auto it : folderData->subfolders)
 		{
 			ImGui::Indent();
-			renderBrowserRecursive(&it, script, isRunningScript, ++currentSubfolderIndex);
+			currentFileTotalCount = renderBrowserRecursive(&it, script, isRunningScript, ++currentSubfolderIndex, currentFileTotalCount);
 			ImGui::Unindent();
 		}
 	}
+	else
+	{
+		currentFileTotalCount += folderData->fullPathfilesNames.size();
+	}
+	return currentFileTotalCount;
 }
 
 inline void BuildRecursiveIndex(FolderData folder, std::vector<int>& vec)
