@@ -1,9 +1,10 @@
-solution "OpenGameController"
+solution "EnchantedGamepad"
     configurations { "Debug", "Final" }
     platforms { "Win32", "Win64" }
 
-project "OpenGameController"
-    kind "ConsoleApp"
+project "EnchantedGamepad"
+    kind "WindowedApp"
+    entrypoint "mainCRTStartup"
     language "C++"
     targetdir "../bin/%{cfg.architecture}"
     files { "code/**.h", "code/**.hpp", "code/**.cpp", "code/**.c", "code/**.frag" }
