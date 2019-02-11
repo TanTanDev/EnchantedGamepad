@@ -26,15 +26,12 @@
 
 ControllerViewWindow::ControllerViewWindow()
 {
-	//tex.create(100,100);
-	spriteSheetTexture.loadFromFile("C:/Users/Jonatan/Desktop/c++/opengamecontroller/ControllerSpriteSheet.png");
+	spriteSheetTexture.loadFromFile("Textures/ControllerSpriteSheet.png");
 	drawTexture.create(ceil(spriteSheetTexture.getSize().x), ceil(spriteSheetTexture.getSize().y));
 	drawTexture.clear(sf::Color::White);
 	// for some reason rendertextures are flipped upside down
 	auto texSize = drawTexture.getSize();
 	auto view = sf::View(sf::Vector2f(texSize.x*0.5f, texSize.y*0.5f), sf::Vector2f(texSize.x, texSize.y));
-	//view.rotate(180.0f);
-	//drawTexture.setView(view);//, 
 	drawTexture.setView(sf::View(sf::Vector2f(ceil(texSize.x*0.5f), ceil(texSize.y*0.5f)),sf::Vector2f((float)texSize.x,-(float)texSize.y)));//,sf::Vector2f(texSize.x,-texSize.y)));
 	sf::Vector2f basePosition(0, 100.0f);
 
@@ -171,11 +168,7 @@ void ControllerViewWindow::Render()
 	GamepadInput input = GamepadInput::GetInstance();
 	ImGui::Begin("ControllerView", 0);
 	drawTexture.clear(sf::Color::Transparent);
-//	ImGui::Image(tex);
 	sf::Sprite t;
-
-
-
 
 	t.setTexture(spriteSheetTexture);
 	drawTexture.draw(baseSprite);
@@ -278,7 +271,5 @@ void ControllerViewWindow::Render()
 	size.y = texSize.y*scale;
 
 	drawList->AddImage(textureHandle, windowPos + sf::Vector2f(5, 30), windowPos + size + sf::Vector2f(-5, -5), uv0, uv1);
-	//drawList->AddImage((void*)tex.getNativeHandle(), windowSize + sf::Vector2f(20, 50), windowSize + sf::Vector2f(392, 392));//, uv0, uv1);
-	//drawList->AddImage((void*)tex.getNativeHandle(), windowSize + sf::Vector2f(50, 70), windowSize + sf::Vector2f(300, 300),sf::Vector2f(0.5,0.5), sf::Vector2f(1,1));
 	ImGui::End();
 }
