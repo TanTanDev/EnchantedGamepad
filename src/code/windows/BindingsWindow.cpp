@@ -21,7 +21,7 @@
 #include "../Application.h"
 #include "../FileScanner.h"
 #include "../Script.h"
-#include "../ImguiConsole.h"
+#include "../Windows/ConsoleWindow.h"
 
 #include "../SfKeyToName.h"
 

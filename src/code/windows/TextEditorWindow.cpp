@@ -16,7 +16,7 @@
 #include "TextEditorWindow.h"
 #include "../Script.h"
 #include "../imgui/imgui.h"
-#include "../ImguiConsole.h"
+#include "../Windows/ConsoleWindow.h"
 
 #include <fstream>
 #include <iostream>
@@ -81,10 +81,11 @@ void TextEditorWindow::Render(Application& FD, Script& script)
 				{
 					t.write(textToSave.c_str(), textToSave.size());
 					t.close();
-					ImguiConsole::GetInstance().ClearLog(false);
-					ImguiConsole::GetInstance().HandlePrint("--- Hot reloading ---", ImguiConsole::LogType::unique);
+					ConsoleWindow::GetInstance().ClearLog(false);
+					ConsoleWindow::GetInstance().HandlePrint("--- Hot reloading ---", ConsoleWindow::LogType::unique);
 					script.Unload();
 					script.Load(currentFileName.c_str());
+					script.InvokeStart();
 				}
 				else
 				{

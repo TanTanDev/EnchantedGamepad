@@ -22,7 +22,7 @@
 #include "imguiThemes.h"
 #include "Application.h"
 #include "FileScanner.h"
-#include "ImguiConsole.h"
+#include "Windows\ConsoleWindow.h"
 #include "ScriptBinding.h"
 #include "BindingSettings.h"
 
@@ -92,7 +92,7 @@ int main()
 	sf::Keyboard::Key anyKeyPressed = sf::Keyboard::Key::Unknown;
 	while (window.isOpen())
 	{
-		ImguiConsole::GetInstance().ProccessCout();
+		ConsoleWindow::GetInstance().ProccessCout();
 		timer.Update();
 		fileScanner.Update(timer.GetDeltaTime());
 		if (isRunningScript)
@@ -118,7 +118,7 @@ int main()
 		ImGui::SFML::Update(window, deltaClock.restart());
 		window.clear(sf::Color(200, 200, 200, 255));
 		
-		ImguiConsole::GetInstance().DrawConsole(true);
+		ConsoleWindow::GetInstance().DrawConsole(true);
 		
 		// window renders
 		programsWindow.Render(app, fileScanner, script, isRunningScript, bindingSettings);

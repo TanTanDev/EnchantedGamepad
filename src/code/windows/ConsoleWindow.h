@@ -13,3 +13,42 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#pragma once
+#include "Singleton.h"
+#include <vector>
+#include <string>
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <sstream>
+
+// Singleton. needs to be accessed through lua script
+class ConsoleWindow : public Singleton<ConsoleWindow>
+{
+public:
+	enum LogType
+	{
+		info,
+		warning,
+		error,
+		unique
+	};
+private:
+	struct historyData
+	{
+		LogType logType;
+		std::string text;
+	};
+	std::vector<historyData> history;
+	std::stringstream ss;
+	std::streambuf* oldCoutBuffer;
+
+	bool autoClear;
+public:
+	ConsoleWindow();
+	~ConsoleWindow();
+	void ProccessCout();
+	void DrawConsole(bool draw);
+	void HandlePrint(const char* string, LogType logType = LogType::info);
+	void ClearLog(bool force = true);
+};

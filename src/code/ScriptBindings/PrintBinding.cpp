@@ -17,7 +17,7 @@
 #include "InputBinding.h"
 #include "GamepadInput.h"
 #include "AppSettings.h"
-#include "ImguiConsole.h"
+#include "Windows\ConsoleWindow.h"
 
 #include <iostream>
 extern "C"
@@ -37,7 +37,7 @@ namespace ScriptBindings
 			if (lua_isstring(L, i))
 			{
 				const char* printString = lua_tostring(L, i);
-				ImguiConsole::GetInstance().HandlePrint(printString);
+				ConsoleWindow::GetInstance().HandlePrint(printString);
 				
 			}
 			else
@@ -50,7 +50,7 @@ namespace ScriptBindings
 
 	static int clearLog(lua_State* L)
 	{
-		ImguiConsole::GetInstance().ClearLog(true);
+		ConsoleWindow::GetInstance().ClearLog(true);
 		return 0;
 	}
 
