@@ -1,4 +1,3 @@
-#include "SelectedScriptWindow.h"
 // This file is part of Enchanted Gamepad
 // Copyright (C) <2018> Jonatan Olsson
 //
@@ -22,7 +21,7 @@
 #include "../Application.h"
 #include "../FileScanner.h"
 #include "../Script.h"
-#include "../ImguiConsole.h"
+#include "../Windows/ConsoleWindow.h"
 #include "../ScriptBinding.h"
 
 SelectedScriptWindow::SelectedScriptWindow()
@@ -57,9 +56,9 @@ void SelectedScriptWindow::Render(Application& FD, FileScanner& fileScanner, Scr
 		// don't start scripts without an update function
 		if (!script.HasUpdateFunction())
 		{
-			ImguiConsole::GetInstance().HandlePrint("To 'START', you need an update function!", ImguiConsole::LogType::error);
+			ConsoleWindow::GetInstance().HandlePrint("To 'START', you need an update function!", ConsoleWindow::LogType::error);
 			//ImguiConsole::GetInstance().HandlePrint("like this:", ImguiConsole::LogType::unique);
-			ImguiConsole::GetInstance().HandlePrint("LIKE THIS:\nfunction update(dt)\n\nend", ImguiConsole::LogType::warning);
+			ConsoleWindow::GetInstance().HandlePrint("LIKE THIS:\nfunction update(dt)\n\nend", ConsoleWindow::LogType::warning);
 			isRunningScript = false;
 		}
 		else if (isRunningScript)

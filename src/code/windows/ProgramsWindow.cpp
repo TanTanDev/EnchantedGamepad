@@ -19,7 +19,7 @@
 #include "../Application.h"
 #include "../FileScanner.h"
 #include "../Script.h"
-#include "../ImguiConsole.h"
+#include "../Windows/ConsoleWindow.h"
 #include "BindingSettings.h"
 
 // todo: is there a smaller lib to use?
@@ -84,8 +84,8 @@ int ProgramsWindow::renderBrowserRecursive(FolderData* folderData, Script& scrip
 				// selected script build recursive index!
 				selectedScriptFolderRef.recursiveFolderIndex = currentRecursiveFolderIndex;
 				selectedScriptFolderRef.ScriptIndex = i;
-				ImguiConsole::GetInstance().ClearLog(false);
-				ImguiConsole::GetInstance().HandlePrint("--- start of script ---", ImguiConsole::LogType::unique);
+				ConsoleWindow::GetInstance().ClearLog(false);
+				ConsoleWindow::GetInstance().HandlePrint("--- start of script ---", ConsoleWindow::LogType::unique);
 				isRunningScript = false;
 				script.Unload();
 				script.Load(fullPathFileName);
@@ -215,8 +215,8 @@ void ProgramsWindow::Render(Application& FD, FileScanner& fileScanner, Script& s
 			{
 				if (it.compare("Scripts/" + changedFiles[i]) == 0)
 				{
-					ImguiConsole::GetInstance().ClearLog(false);
-					ImguiConsole::GetInstance().HandlePrint("--- Hot reloading ---", ImguiConsole::LogType::unique);
+					ConsoleWindow::GetInstance().ClearLog(false);
+					ConsoleWindow::GetInstance().HandlePrint("--- Hot reloading ---", ConsoleWindow::LogType::unique);
 					script.Unload();
 					script.Load(it.c_str());
 					if (isRunningScript && script.HasStartFunction())

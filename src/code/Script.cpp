@@ -27,7 +27,7 @@
 #include "ScriptBinding.h"
 
 // for printing error messages
-#include "ImguiConsole.h"
+#include "Windows\ConsoleWindow.h"
 
 #include <iostream>
 extern "C"
@@ -68,7 +68,7 @@ void Script::Load(const char* fileName)
 	ScriptBindings::luaopen_rect(luaState);
 	if (luaL_loadfile(luaState, fileName) || lua_pcall(luaState, 0, LUA_MULTRET, 0))
 	{
-		ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
+		ConsoleWindow::GetInstance().HandlePrint(lua_tostring(luaState, -1), ConsoleWindow::LogType::error);
 		scriptLoaded = false;
 		lua_close(luaState);
 	}
@@ -113,7 +113,7 @@ void Script::InvokeUpdate(float dt)
 		lua_pushnumber(luaState, dt);
 		if (0 != lua_pcall(luaState, 1, 0, 0))
 		{
-			ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
+			ConsoleWindow::GetInstance().HandlePrint(lua_tostring(luaState, -1), ConsoleWindow::LogType::error);
 			lua_pop(luaState, 1);
 		}
 	}
@@ -126,7 +126,7 @@ void Script::InvokeStart()
 		lua_rawgeti(luaState, LUA_REGISTRYINDEX, luaRefStart);
 		if (0 != lua_pcall(luaState, 0, 0, 0))
 		{
-			ImguiConsole::GetInstance().HandlePrint(lua_tostring(luaState, -1), ImguiConsole::LogType::error);
+			ConsoleWindow::GetInstance().HandlePrint(lua_tostring(luaState, -1), ConsoleWindow::LogType::error);
 			lua_pop(luaState, 1);
 		}
 	}
