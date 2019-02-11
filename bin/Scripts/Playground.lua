@@ -1,34 +1,23 @@
 -- VERSION 0
 function Start()
-	Utility = require("Scripts/Utility")
-	TimerManager = require("Scripts/Libraries/TimerManager")
+	timerManager = require("Scripts/Libraries/TimerManager")
 
-	Config = {}
-	Config.containers = {3,3}
-	containers = {[0]=0, [1]=nil, [2]=2}
-
-	for i, v in pairs(Config.containers) do
-		print(i)
-		table.insert(containers, {obj = v})
-	end
-	print("length: " .. #containers)
-
-
+	loopTime = 0.6
 end
 
 function Update(dt)
-	TimerManager.Update(dt)
+	timerManager.Update(dt)
 
 	if Input.ButtonPressed(Input.GAMEPAD_RIGHT_BUTTON) then
 		print("start new timer")
-		-- continious loop every 0.4 sec until player release GAMEPAD_RIGHT_BUTTON
-		TimerManager.SetTimer(0.4, true
+		-- continious loop until player release GAMEPAD_RIGHT_BUTTON
+		timerManager.SetTimer(loopTime, true
 		,function(timerHandle)
 			if Input.ButtonHeld(Input.GAMEPAD_RIGHT_BUTTON) then
 				print("will loop")
 			else
 				print("abort")
-				TimerManager.StopTimer(timerHandle)
+				timerManager.StopTimer(timerHandle)
 			end
 		end)
 	end

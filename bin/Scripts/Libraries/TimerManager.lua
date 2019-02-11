@@ -16,7 +16,7 @@ function TimerData:New(timerRef, time, loop, callback)
    return newTimerData
 end
 
--- return: should remove
+-- return: should remove timer?
 function TimerData:Update(dt)
 	self.TimerValue = self.TimerValue + dt
 	if self.TimerValue  >= self.DoneTime then
@@ -46,6 +46,7 @@ function TimerManager.Update(dt)
 	end
 end
 
+-- start a timer, run callback when done
 function TimerManager.SetTimer(time, loop, callback)
 	TimerManager.RefCount = TimerManager.RefCount + 1
 	local timerRef = TimerManager.RefCount
