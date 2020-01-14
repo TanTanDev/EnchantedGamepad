@@ -11,7 +11,7 @@ function Utility.CheckPress(gamepadButton, simulatedKey, joystickSide)
 	end
 end
 
--- same as checkpress but also execuses a function provided if said button is held
+-- same as checkpress but also execute a function provided if said button is held
 function Utility.CheckPressEx(gamepadButton, simulatedKey, joystickSide, funcOnHeld)
 	if Input.ButtonPressed(gamepadButton, joystickSide) then
 		SimulateInput.KeyDown(simulatedKey)
@@ -24,6 +24,7 @@ function Utility.CheckPressEx(gamepadButton, simulatedKey, joystickSide, funcOnH
 end
 
 -- to press multiple windows keys bound to 1 gamepad button
+-- good for example: CTRL + C
 function Utility.CheckPressMultiple(gamepadButton, simulatedKey1, simulatedKey2)
 	if Input.ButtonPressed(gamepadButton) then
 		SimulateInput.PressKey(simulatedKey1, simulatedKey2)

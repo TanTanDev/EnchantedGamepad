@@ -24,7 +24,7 @@
 #include "FileScanner.h"
 #include "Windows\ConsoleWindow.h"
 #include "ScriptBinding.h"
-#include "BindingSettings.h"
+#include "ScriptBindingFileManager.h"
 
 #include "windows\ProgramsWindow.h"
 #include "windows\SelectedScriptWindow.h"
@@ -63,7 +63,7 @@ int main()
 	Timer timer;
 	timer.Start();
 	
-	sf::RenderWindow window(sf::VideoMode(500, 500), "Open Game Controller");
+	sf::RenderWindow window(sf::VideoMode(500, 500), "Enchanted Gamepad");
 	ImGui::SFML::Init(window);
 	window.resetGLStates(); // call it if you only draw ImGui. Otherwise not needed.
 	window.setKeyRepeatEnabled(false);
@@ -82,6 +82,7 @@ int main()
 	ControllerViewWindow controllerViewWindow;
 
 	BindingSettings bindingSettings;
+	bindingSettings.CreateOrLoadGlobalBindingsFile();
 
 	bool isRunningScript = false;
 	bool autoHotReload = false;
@@ -123,7 +124,7 @@ int main()
 		// window renders
 		programsWindow.Render(app, fileScanner, script, isRunningScript, bindingSettings);
 		selectedScriptWindow.Render(app, fileScanner, script, isRunningScript, autoHotReload);
-		bindingWindow.Render(app, fileScanner, script, timer, anyKeyPressed);
+		bindingWindow.Render(app, fileScanner, script, timer, anyKeyPressed, bindingSettings);
 		textEditorWindow.Render(app, script);
 		controllerViewWindow.Render();
 		

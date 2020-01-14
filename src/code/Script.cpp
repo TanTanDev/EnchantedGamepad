@@ -152,6 +152,29 @@ lua_State* Script::GetLuaState()
 	return luaState;
 }
 
+void Script::SetGlobal(const char * name, int value)
+{
+	//lua_getglobal(luaState, name);
+	//lua_pushnumber(luaState, value);
+	//lua_setglobal(luaState, name);
+}
+
+void Script::SetGlobal(const char * name, float value)
+{
+	//lua_getglobal(luaState, name);
+	//lua_pushnumber(luaState, value);
+	//lua_setglobal(luaState, name);
+}
+
+void Script::SetGlobal(const char * name, bool value)
+{
+	//lua_getglobal(luaState, name);
+	
+	lua_pushboolean(luaState, value);
+	lua_setglobal(luaState, name);
+	//lua_pop(luaState, 1);
+}
+
 bool Script::Get(const char * name, int& value)
 {
 	if (!scriptLoaded)

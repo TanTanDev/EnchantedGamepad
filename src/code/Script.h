@@ -33,6 +33,10 @@ public:
 	const bool HasStartFunction();
 	lua_State* GetLuaState();
 
+	void SetGlobal(const char* name, int value);
+	void SetGlobal(const char* name, float value);
+	void SetGlobal(const char* name, bool value);
+
 private:
 	std::string fileName;
 	lua_State* luaState;

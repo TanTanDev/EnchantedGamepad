@@ -32,7 +32,7 @@ namespace JsonHelpers
 
 			// create file
 			std::ofstream newFile;
-			newFile.open(fileName);
+			newFile.open(fileName, std::fstream::out);
 			newFile << defaultData;
 			newFile.close();
 			outDocument.Parse<0ui32>(defaultData.c_str());

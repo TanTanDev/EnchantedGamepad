@@ -22,181 +22,217 @@
 #include "../FileScanner.h"
 #include "../Script.h"
 #include "../Windows/ConsoleWindow.h"
+#include "../imguiExtensions/imguiExtensions.h"
+#include "../ScriptBindingFileManager.h"
 
 #include "../SfKeyToName.h"
 
 BindingsWindow::BindingsWindow()
+	:bindingsFileIndex(0)
 {
 	tweakWithKeyboard = false;
+	isWindowOpenPrev = false;
+	bindingFiles.push_back("FakeName.Binding");
+	bindingFiles.push_back("Jarvan.Binding");
+	bindingFiles.push_back("Singed.binding");
+	bindingFiles.push_back("kled.binding");
 }
 
 BindingsWindow::~BindingsWindow()
 {
 }
 
-void BindingsWindow::Render(Application & FD, FileScanner & fileScanner, Script & script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed)
+void BindingsWindow::Render(Application & FD, FileScanner & fileScanner, Script & script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed, ScriptBindingFileManager& bindingSettings)
 {
-	ImGui::Begin("Bindings");
+	bool isWindowOpen = ImGui::Begin("Bindings");
 	
-	//const char* testu[] = { "aaa" };
-	//static int itemReffu = -1;
-	//ImGui::Text("Current setting: ");
-	//if (ImGui::Combo("", &itemReffu,testu, 1))
-	//{
-	//
-	//}
-	//ImGui::SameLine();
-	ImGui::Checkbox("Tweakable with keyboard", &tweakWithKeyboard);
-
-	auto& bindings = ScriptBinding::GetInstance().GetBindings();
-	if (tweakWithKeyboard)
-		ImGui::Columns(2);
-
-	ImGui::BeginChild("scriptFileList", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-	for (int i = 0; i < bindings.size(); i++)
+	// Window opened
+	if (isWindowOpen && !isWindowOpenPrev)
 	{
-		auto bindingIt = &bindings[i];
-
-		//float *dapointer = &bindings[i].bindingData.f;
-		if (bindingIt->editType == Binding::EditType::DragFloat)
-		{
-			if (ImGui::DragFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f, 0.01f, bindingIt->MinValue.f, bindingIt->MaxValue.f))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::InputFloat)
-		{
-			if (ImGui::InputFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::DragInt)
-		{
-			if (ImGui::DragInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i, 1.0f, bindingIt->MinValue.i, bindingIt->MaxValue.i))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::InputInt)
-		{
-			if (ImGui::InputInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::SliderFloat)
-		{
-			if (ImGui::SliderFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f, bindingIt->MinValue.f, bindingIt->MaxValue.f))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::SliderInt)
-		{
-			if (ImGui::SliderInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i, bindingIt->MinValue.i, bindingIt->MaxValue.i))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::ToggleBox)
-		{
-			if (ImGui::Checkbox(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.b))
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-		}
-		else if (bindingIt->editType == Binding::EditType::ToggleButton)
-		{
-			if (ImGui::Button(bindingIt->GlobalName.c_str()))
-			{
-				bindingIt->bindingData.b != bindingIt->bindingData.b;
-				ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
-			}
-		}
+		//const std::string selectedScriptFileName = script.GetFileName();
+	//	bindingSettings.ApplyBindings(script);
 	}
-
-	// todo: more elegant rebuilding of keybinding data, when script is loaded
-	if (bindings.size() != editorKeyBindings.size())
+	isWindowOpenPrev = isWindowOpen;
+	if (isWindowOpen)
 	{
-		std::cout << "rebuilding editor key bindings\n";
-		editorKeyBindings.clear();
-		editorKeyBindings.reserve(bindings.size());
-		for (int i = 0; i < bindings.size(); i++)
-			editorKeyBindings.push_back(EditorKeyBinding());
-	}
+		ImGui::Checkbox("Tweakable with keyboard", &tweakWithKeyboard);
 
-	ImGui::EndChild();
-	if (tweakWithKeyboard)
-	{
-		ImGui::NextColumn();
-		ImGui::BeginChild("scriptFileListTweakBinding", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
+		RenderBindingsFile(FD, fileScanner, script, timer);
+
+		auto& bindings = ScriptBinding::GetInstance().GetBindings();
+		if (tweakWithKeyboard)
+			ImGui::Columns(2);
+
+		ImGui::BeginChild("scriptFileList", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
 		for (int i = 0; i < bindings.size(); i++)
 		{
-			EditorKeyBinding& currentKeyBinding = editorKeyBindings[i];
-			// Input
-			if (currentKeyBinding.IsWaintingForKeyDecreaseInput)
-			{
-				if (anyKeyPressed != sf::Keyboard::Key::Unknown)
-				{
-					currentKeyBinding.KeyDecrease = anyKeyPressed;
-					currentKeyBinding.IsWaintingForKeyDecreaseInput = false;
-				}
-			}
-			else if (sf::Keyboard::isKeyPressed(currentKeyBinding.KeyDecrease))
-			{
-				if (bindings[i].bindingDataType == Binding::BindingDataType::Float)
-				{
-					bindings[i].bindingData.f -= 0.5f*(bindings[i].MaxValue.f - bindings[i].MinValue.f)*timer.GetDeltaTime();
-					ScriptBindings::SetGlobal(script.GetLuaState(), bindings[i]);
-				}
-				else if (bindings[i].bindingDataType == Binding::BindingDataType::Int)
-					bindings[i].bindingData.i -= 1;
-			}
-			if (currentKeyBinding.IsWaintingForKeyIncreaseInput)
-			{
-				if (anyKeyPressed != sf::Keyboard::Key::Unknown)
-				{
-					currentKeyBinding.KeyIncrease = anyKeyPressed;
-					currentKeyBinding.IsWaintingForKeyIncreaseInput = false;
-				}
-			}
-			else if (sf::Keyboard::isKeyPressed(currentKeyBinding.KeyIncrease))
-			{
-				if (bindings[i].bindingDataType == Binding::BindingDataType::Float)
-				{
-					bindings[i].bindingData.f += 0.5f*(bindings[i].MaxValue.f - bindings[i].MinValue.f)*timer.GetDeltaTime();
-					ScriptBindings::SetGlobal(script.GetLuaState(), bindings[i]);
-				}
-				else if (bindings[i].bindingDataType == Binding::BindingDataType::Int)
-					bindings[i].bindingData.i += 1;
-			}
+			auto bindingIt = &bindings[i];
 
-			// GUI
-			const char* decreaseButtonText;
-			const char* increaseButtonText;
-			if (currentKeyBinding.IsWaintingForKeyDecreaseInput)
+			//float *dapointer = &bindings[i].bindingData.f;
+			if (bindingIt->editType == Binding::EditType::DragFloat)
 			{
-				decreaseButtonText = " ... ";
+				if (ImGui::DragFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f, 0.01f, bindingIt->MinValue.f, bindingIt->MaxValue.f))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
 			}
-			else
+			else if (bindingIt->editType == Binding::EditType::InputFloat)
 			{
-				bool hasDecreaseKey = (editorKeyBindings[i].KeyDecrease != sf::Keyboard::Unknown);
-				decreaseButtonText = (hasDecreaseKey) ? SF_KEY_NAMES[editorKeyBindings[i].KeyDecrease] : "  -  ";
+				if (ImGui::InputFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
 			}
-
-			if (currentKeyBinding.IsWaintingForKeyIncreaseInput)
+			else if (bindingIt->editType == Binding::EditType::DragInt)
 			{
-				increaseButtonText = " ... ";
+				if (ImGui::DragInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i, 1.0f, bindingIt->MinValue.i, bindingIt->MaxValue.i))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
 			}
-			else
+			else if (bindingIt->editType == Binding::EditType::InputInt)
 			{
-				bool hasIncreaseKey = (editorKeyBindings[i].KeyIncrease != sf::Keyboard::Unknown);
-				increaseButtonText = (hasIncreaseKey) ? SF_KEY_NAMES[editorKeyBindings[i].KeyIncrease] : "  +  ";
+				if (ImGui::InputInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
 			}
-
-			ImGui::PushID(i);
-			if (ImGui::Button(decreaseButtonText))
+			else if (bindingIt->editType == Binding::EditType::SliderFloat)
 			{
-				currentKeyBinding.IsWaintingForKeyDecreaseInput = !currentKeyBinding.IsWaintingForKeyDecreaseInput;
+				if (ImGui::SliderFloat(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.f, bindingIt->MinValue.f, bindingIt->MaxValue.f))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
 			}
-			ImGui::PopID();
-			ImGui::SameLine();
-			ImGui::PushID(i * 999 + 1);
-			if (ImGui::Button(increaseButtonText))
+			else if (bindingIt->editType == Binding::EditType::SliderInt)
 			{
-				currentKeyBinding.IsWaintingForKeyIncreaseInput = !currentKeyBinding.IsWaintingForKeyIncreaseInput;
+				if (ImGui::SliderInt(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.i, bindingIt->MinValue.i, bindingIt->MaxValue.i))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
 			}
-			ImGui::PopID();
+			else if (bindingIt->editType == Binding::EditType::ToggleBox)
+			{
+				if (ImGui::Checkbox(bindingIt->GlobalName.c_str(), &bindingIt->bindingData.b))
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+			}
+			else if (bindingIt->editType == Binding::EditType::ToggleButton)
+			{
+				if (ImGui::Button(bindingIt->GlobalName.c_str()))
+				{
+					bindingIt->bindingData.b != bindingIt->bindingData.b;
+					ScriptBindings::SetGlobal(script.GetLuaState(), *bindingIt);
+				}
+			}
 		}
+
+		// todo: more elegant rebuilding of keybinding data, when script is loaded
+		if (bindings.size() != editorKeyBindings.size())
+		{
+			std::cout << "rebuilding editor key bindings\n";
+			editorKeyBindings.clear();
+			editorKeyBindings.reserve(bindings.size());
+			for (int i = 0; i < bindings.size(); i++)
+				editorKeyBindings.push_back(EditorKeyBinding());
+		}
+
 		ImGui::EndChild();
+		if (tweakWithKeyboard)
+		{
+			ImGui::NextColumn();
+			ImGui::BeginChild("scriptFileListTweakBinding", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
+			for (int i = 0; i < bindings.size(); i++)
+			{
+				EditorKeyBinding& currentKeyBinding = editorKeyBindings[i];
+				// Input
+				if (currentKeyBinding.IsWaintingForKeyDecreaseInput)
+				{
+					if (anyKeyPressed != sf::Keyboard::Key::Unknown)
+					{
+						currentKeyBinding.KeyDecrease = anyKeyPressed;
+						currentKeyBinding.IsWaintingForKeyDecreaseInput = false;
+					}
+				}
+				else if (sf::Keyboard::isKeyPressed(currentKeyBinding.KeyDecrease))
+				{
+					if (bindings[i].bindingDataType == Binding::BindingDataType::Float)
+					{
+						bindings[i].bindingData.f -= 0.5f*(bindings[i].MaxValue.f - bindings[i].MinValue.f)*timer.GetDeltaTime();
+						ScriptBindings::SetGlobal(script.GetLuaState(), bindings[i]);
+					}
+					else if (bindings[i].bindingDataType == Binding::BindingDataType::Int)
+						bindings[i].bindingData.i -= 1;
+				}
+				if (currentKeyBinding.IsWaintingForKeyIncreaseInput)
+				{
+					if (anyKeyPressed != sf::Keyboard::Key::Unknown)
+					{
+						currentKeyBinding.KeyIncrease = anyKeyPressed;
+						currentKeyBinding.IsWaintingForKeyIncreaseInput = false;
+					}
+				}
+				else if (sf::Keyboard::isKeyPressed(currentKeyBinding.KeyIncrease))
+				{
+					if (bindings[i].bindingDataType == Binding::BindingDataType::Float)
+					{
+						bindings[i].bindingData.f += 0.5f*(bindings[i].MaxValue.f - bindings[i].MinValue.f)*timer.GetDeltaTime();
+						ScriptBindings::SetGlobal(script.GetLuaState(), bindings[i]);
+					}
+					else if (bindings[i].bindingDataType == Binding::BindingDataType::Int)
+						bindings[i].bindingData.i += 1;
+				}
+
+				// GUI
+				const char* decreaseButtonText;
+				const char* increaseButtonText;
+				if (currentKeyBinding.IsWaintingForKeyDecreaseInput)
+				{
+					decreaseButtonText = " ... ";
+				}
+				else
+				{
+					bool hasDecreaseKey = (editorKeyBindings[i].KeyDecrease != sf::Keyboard::Unknown);
+					decreaseButtonText = (hasDecreaseKey) ? SF_KEY_NAMES[editorKeyBindings[i].KeyDecrease] : "  -  ";
+				}
+
+				if (currentKeyBinding.IsWaintingForKeyIncreaseInput)
+				{
+					increaseButtonText = " ... ";
+				}
+				else
+				{
+					bool hasIncreaseKey = (editorKeyBindings[i].KeyIncrease != sf::Keyboard::Unknown);
+					increaseButtonText = (hasIncreaseKey) ? SF_KEY_NAMES[editorKeyBindings[i].KeyIncrease] : "  +  ";
+				}
+
+				ImGui::PushID(i);
+				if (ImGui::Button(decreaseButtonText))
+				{
+					currentKeyBinding.IsWaintingForKeyDecreaseInput = !currentKeyBinding.IsWaintingForKeyDecreaseInput;
+				}
+				ImGui::PopID();
+				ImGui::SameLine();
+				ImGui::PushID(i * 999 + 1);
+				if (ImGui::Button(increaseButtonText))
+				{
+					currentKeyBinding.IsWaintingForKeyIncreaseInput = !currentKeyBinding.IsWaintingForKeyIncreaseInput;
+				}
+				ImGui::PopID();
+			}
+			ImGui::EndChild();
+		}
 	}
 	ImGui::End();
+}
+
+void BindingsWindow::RenderBindingsFile(Application & FD, FileScanner & fileScanner, Script & script, Timer & timer)
+{
+	ImGui::Combo("File Bindings2", &bindingsFileIndex, bindingFiles);
+	if (bindingsFileIndex != bindingsFileIndexPrev)
+	{
+		// reload
+		//bindingSettings.ApplyBindings(script);
+	}
+
+	bindingsFileIndexPrev = bindingsFileIndex;
+	ImGui::Button("Save"); ImGui::SameLine();
+	ImGui::Button("Save As"); ImGui::SameLine();
+	ImGui::Button("Delete"); ImGui::SameLine();
+	ImGui::Button("Explore");
+	// get latest file for bindings, if non existant, construct an empty one based on the lua state
+	// assign the lua state globals from the file json
+	// maybe make an external class that handles this...
+}
+
+void BindingsWindow::RefreshBindingFiles(Script & script)
+{
+	
 }
