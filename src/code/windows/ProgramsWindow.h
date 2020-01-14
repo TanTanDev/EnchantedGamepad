@@ -20,7 +20,7 @@ typedef class Application Application;
 typedef class FileScanner FileScanner;
 typedef class Script Script;
 typedef class FolderData FolderData;
-typedef class BindingSettings BindingSettings;
+typedef class ScriptBindingFileManager BindingSettings;
 
 class ProgramsWindow
 {
@@ -42,5 +42,5 @@ public:
 	ProgramsWindow(Application& FD);
 	~ProgramsWindow();
 
-	void Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript, BindingSettings& bindingSettings);
+	void Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript, ScriptBindingFileManager& bindingSettings);
 };

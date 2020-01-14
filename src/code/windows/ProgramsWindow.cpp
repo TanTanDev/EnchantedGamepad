@@ -20,7 +20,7 @@
 #include "../FileScanner.h"
 #include "../Script.h"
 #include "../Windows/ConsoleWindow.h"
-#include "BindingSettings.h"
+#include "ScriptBindingFileManager.h"
 
 // todo: is there a smaller lib to use?
 // used for finding files in explorer
@@ -131,7 +131,7 @@ ProgramsWindow::~ProgramsWindow()
 {
 }
 
-void ProgramsWindow::Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript, BindingSettings& bindingSettings)
+void ProgramsWindow::Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript, ScriptBindingFileManager& bindingSettings)
 {
 	// Menu
 	ImGui::Begin("Programs", 0); //ImGuiWindowFlags_MenuBar);// ImGui::SameLine();
@@ -165,8 +165,8 @@ void ProgramsWindow::Render(Application& FD, FileScanner& fileScanner, Script& s
 			std::string relativePath = pathAsString.substr(scriptsPos);
 			std::string fileName = relativePath.substr(std::string("Scripts\\").length());
 
-			std::string newFilePath = FD.GetWorkingDirectory().string() + "BindingSettings\\" + fileName;
-			bindingSettings.CreateDefaultFile(newFilePath);
+			//std::string newFilePath = FD.GetWorkingDirectory().string() + "BindingSettings\\" + fileName;
+			//bindingSettings.CreateDefaultFile(newFilePath);
 		}
 	}
 	ImGui::SameLine();

@@ -18,6 +18,7 @@ typedef class Application Application;
 typedef class FileScanner FileScanner;
 typedef class Script Script;
 typedef class Timer Timer;
+typedef class ScriptBindingFileManager BindingSettings;
 #include <SFML/Graphics.hpp>
 
 // used to controll editor bindings through the keyboard
@@ -45,10 +46,15 @@ class BindingsWindow
 private:
 	bool tweakWithKeyboard;
 	std::vector<EditorKeyBinding> editorKeyBindings;
-
+	std::vector<std::string> bindingFiles;
+	int bindingsFileIndex;
+	int bindingsFileIndexPrev;
+	bool isWindowOpenPrev;
+	void RenderBindingsFile(Application& FD, FileScanner& fileScanner, Script& script, Timer& timer);
+	void RefreshBindingFiles(Script & script);
 public:
 	BindingsWindow();
 	~BindingsWindow();
 
-	void Render(Application& FD, FileScanner& fileScanner, Script& script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed);
+	void Render(Application& FD, FileScanner& fileScanner, Script& script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed, ScriptBindingFileManager& bindingSettings);
 };
