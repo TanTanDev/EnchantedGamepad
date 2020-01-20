@@ -98,6 +98,9 @@ public:
 	~ScriptBinding();
 
 	void Bind(Binding binding);
+	void UpdateBinding(std::string globalName, int value);
+	void UpdateBinding(std::string globalName, bool value);
+	void UpdateBinding(std::string globalName, float value);
 	std::vector<Binding>& GetBindings();
 	void ClearBindings();
 };

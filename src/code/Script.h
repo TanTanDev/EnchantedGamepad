@@ -16,7 +16,11 @@
 
 #pragma once
 #include <string>
+
+//#include "EventHandler.h"
+
 typedef struct lua_State lua_State;
+
 class Script
 {
 public:
@@ -28,6 +32,7 @@ public:
 	void InvokeStart();
 	bool Get(const char* name, int& value);
 
+	bool IsGood();
 	const std::string& GetFileName();
 	const bool HasUpdateFunction();
 	const bool HasStartFunction();
@@ -37,6 +42,7 @@ public:
 	void SetGlobal(const char* name, float value);
 	void SetGlobal(const char* name, bool value);
 
+	//EventHandler onScriptChanged;
 private:
 	std::string fileName;
 	lua_State* luaState;

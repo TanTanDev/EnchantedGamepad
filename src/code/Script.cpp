@@ -22,6 +22,8 @@
 #include "ScriptBindings\EditorBinding.h"
 #include "scriptBindings\PrintBinding.h"
 #include "ScriptBindings\rectBinding.h"
+#include "windows\BindingsWindow.h"
+
 
 // used to clear out bindings when unloading
 #include "ScriptBinding.h"
@@ -81,6 +83,7 @@ void Script::Load(const char* fileName)
 		lua_getglobal(luaState, "Start");
 		luaRefStart = luaL_ref(luaState, LUA_REGISTRYINDEX);
 	}
+	BindingsWindow::GetInstance().RefreshBindingFiles(*this);
 }
 
 void Script::Unload()
@@ -98,6 +101,7 @@ void Script::Unload()
 	if (luaState && scriptLoaded)
 		lua_close(luaState);
 	scriptLoaded = false;
+	BindingsWindow::GetInstance().RefreshBindingFiles(*this);
 }
 
 void Script::InvokeUpdate(float dt)
@@ -130,6 +134,12 @@ void Script::InvokeStart()
 			lua_pop(luaState, 1);
 		}
 	}
+	BindingsWindow::GetInstance().ApplyBindings(*this);
+}
+
+bool Script::IsGood()
+{
+	return scriptLoaded;
 }
 
 const std::string& Script::GetFileName()
@@ -155,15 +165,15 @@ lua_State* Script::GetLuaState()
 void Script::SetGlobal(const char * name, int value)
 {
 	//lua_getglobal(luaState, name);
-	//lua_pushnumber(luaState, value);
-	//lua_setglobal(luaState, name);
+	lua_pushnumber(luaState, value);
+	lua_setglobal(luaState, name);
 }
 
 void Script::SetGlobal(const char * name, float value)
 {
 	//lua_getglobal(luaState, name);
-	//lua_pushnumber(luaState, value);
-	//lua_setglobal(luaState, name);
+	lua_pushnumber(luaState, value);
+	lua_setglobal(luaState, name);
 }
 
 void Script::SetGlobal(const char * name, bool value)

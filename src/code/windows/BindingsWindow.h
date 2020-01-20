@@ -19,6 +19,7 @@ typedef class FileScanner FileScanner;
 typedef class Script Script;
 typedef class Timer Timer;
 typedef class ScriptBindingFileManager BindingSettings;
+#include "Singleton.h"
 #include <SFML/Graphics.hpp>
 
 // used to controll editor bindings through the keyboard
@@ -41,7 +42,7 @@ struct EditorKeyBinding
 };
 
 
-class BindingsWindow
+class BindingsWindow: public Singleton<BindingsWindow>
 {
 private:
 	bool tweakWithKeyboard;
@@ -51,10 +52,17 @@ private:
 	int bindingsFileIndexPrev;
 	bool isWindowOpenPrev;
 	void RenderBindingsFile(Application& FD, FileScanner& fileScanner, Script& script, Timer& timer);
-	void RefreshBindingFiles(Script & script);
+	void RenderSaveAs(Script & script);
+	void RenderRemovePopup(Script & script);
+
+	std::string GetCurrentBindingFileName();
+	void HandleOnScriptChanged();
 public:
+	void RefreshBindingFiles(Script & script);
+	void ApplyBindings(Script& script);
+
 	BindingsWindow();
 	~BindingsWindow();
 
-	void Render(Application& FD, FileScanner& fileScanner, Script& script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed, ScriptBindingFileManager& bindingSettings);
+	void Render(Application& FD, FileScanner& fileScanner, Script& script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed);
 };

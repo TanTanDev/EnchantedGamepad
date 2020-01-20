@@ -131,7 +131,7 @@ ProgramsWindow::~ProgramsWindow()
 {
 }
 
-void ProgramsWindow::Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript, ScriptBindingFileManager& bindingSettings)
+void ProgramsWindow::Render(Application& FD, FileScanner& fileScanner, Script& script, bool& isRunningScript)
 {
 	// Menu
 	ImGui::Begin("Programs", 0); //ImGuiWindowFlags_MenuBar);// ImGui::SameLine();

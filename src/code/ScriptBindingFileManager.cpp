@@ -23,20 +23,22 @@
 #include <fstream>
 #include <filesystem>
 #include "JsonHelpers.h"
+#include "rapidjson/prettywriter.h"
+
+#include <stdio.h>
+
 void ScriptBindingFileManager::CreateBindingsFolder()
 {
-//	std::experimental::filesystem::exists(FD.GetWorkingDirectory().string() + "BindingSettings\\");
+	//	std::experimental::filesystem::exists(FD.GetWorkingDirectory().string() + "BindingSettings\\");
 }
 
-/*
-void ScriptBindingFileManager::ApplyBindingFromFileName(Script& script, std::string fileName)
+
+void ScriptBindingFileManager::ApplyBindings(Script& script, std::string bindingFileName)
 {
-	// Load file and generate a binding settings
-	//bindingItemPathsFileData.bindingDatas.clear();
-	std::ifstream ifStream(fileName);
-	if (ifStream.bad())
+	std::ifstream ifStream(bindingFileName);
+	if (ifStream.bad() || ifStream.fail())
 	{
-		std::cout << "bad/non-existant file: " << fileName << std::endl;
+		std::cout << "bad/non-existant file: " << bindingFileName << std::endl;
 		return;
 	}
 	std::string contents = std::string(std::istreambuf_iterator<char>(ifStream), std::istreambuf_iterator<char>());
@@ -54,29 +56,37 @@ void ScriptBindingFileManager::ApplyBindingFromFileName(Script& script, std::str
 		{
 			return;
 		}
-		BindingData bindingData = BindingData();
-		std::string globalName = json["bindingDatas"][i]["bindingName"].GetString();
+		const char* globalName = json["bindingDatas"][i]["bindingName"].GetString();
 		const char* bindingDataTypeString = json["bindingDatas"][i]["bindingDataType"].GetString();
 		if (strcmp(bindingDataTypeString, "float") == 0)
-			ScriptBinding::GetInstance().SetBinding(globalName, (float)json["bindingDatas"][i]["bindingData"].GetDouble());
-		else if(strcmp(bindingDataTypeString, "int") == 0)
-			ScriptBinding::GetInstance().SetBinding(globalName, json["bindingDatas"][i]["bindingData"].GetInt());
+		{
+			float value = (float)json["bindingDatas"][i]["bindingData"].GetDouble();
+			script.SetGlobal(globalName, value);
+			ScriptBinding::GetInstance().UpdateBinding(globalName, value);
+		}
+		else if (strcmp(bindingDataTypeString, "int") == 0)
+		{
+			int value = json["bindingDatas"][i]["bindingData"].GetInt();
+			script.SetGlobal(globalName, value);
+			ScriptBinding::GetInstance().UpdateBinding(globalName, value);
+		}
 		else if (strcmp(bindingDataTypeString, "bool") == 0)
-			ScriptBinding::GetInstance().SetBinding(globalName, json["bindingDatas"][i]["bindingData"].GetBool());
-		CurrentBindingDatas.bindingDatas.push_back(bindingData);
-	}
-	for (int i = 0; i < CurrentBindingDatas.bindingDatas.size(); i++)
-	{
-		BindingData bindingData = CurrentBindingDatas.bindingDatas[i];
-		if(bindingData.bindingDataType == BindingData::BindingDataType::Bool)
-			script.SetGlobal(bindingData.GlobalName.c_str(), bindingData.bindingData.b);
-		else if (bindingData.bindingDataType == BindingData::BindingDataType::Int)
-			script.SetGlobal(bindingData.GlobalName.c_str(), bindingData.bindingData.i);
-		else if (bindingData.bindingDataType == BindingData::BindingDataType::Float)
-			script.SetGlobal(bindingData.GlobalName.c_str(), bindingData.bindingData.f);
+		{
+			bool value = json["bindingDatas"][i]["bindingData"].GetBool();
+			script.SetGlobal(globalName, value);
+			ScriptBinding::GetInstance().UpdateBinding(globalName, value);
+		}
 	}
 }
-*/
+
+
+void ScriptBindingFileManager::ConstructUntiteledBinding(std::string scriptFileName)
+{
+	untiteledBinding.bindingFilesPathRelative.clear();
+	untiteledBinding.bindingFilesPathRelative.push_back("UNTITELED");
+	untiteledBinding.currentBindingIndex = 0;
+	untiteledBinding.scriptFullPath = scriptFileName;
+}
 
 ScriptBindingFileManager::ScriptBindingFileManager()
 {
@@ -122,6 +132,152 @@ void ScriptBindingFileManager::CreateOrLoadGlobalBindingsFile()
 		}
 		bindingItemPathsFileData.bindingItems.push_back(bindingItem);
 	}
+}
+
+void ScriptBindingFileManager::CreateNewBindingFileAndSave(std::string filePath)
+{
+	rapidjson::StringBuffer stringBuffer;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
+	writer.StartObject();
+	writer.Key("bindingDatas");
+	writer.StartArray();
+	std::vector<Binding> currentBindings = ScriptBinding::GetInstance().GetBindings();
+	for (int i = 0; i < currentBindings.size(); i++)
+	{
+		writer.StartObject();
+		writer.Key("bindingName"); writer.String(currentBindings[i].GlobalName.c_str());
+		writer.Key("bindingDataType");
+		if (currentBindings[i].bindingDataType == Binding::BindingDataType::Bool)
+		{
+			writer.String("bool");
+			writer.Key("bindingData"); writer.Bool(currentBindings[i].bindingData.b);
+		}
+		if (currentBindings[i].bindingDataType == Binding::BindingDataType::Int)
+		{
+			writer.String("int");
+			writer.Key("bindingData"); writer.Int(currentBindings[i].bindingData.i);
+		}
+		if (currentBindings[i].bindingDataType == Binding::BindingDataType::Float)
+		{
+			writer.String("float");
+			writer.Key("bindingData"); writer.Double(currentBindings[i].bindingData.f);
+		}
+		writer.EndObject();
+	}
+	writer.EndArray();
+	writer.EndObject();
+	const char* constructedJson = stringBuffer.GetString();
+
+	std::ofstream newFile;
+	newFile.open(filePath);
+	if (!newFile.is_open())
+	{
+		std::cout << "OMG cant write new binding file: " << (filePath) << std::endl;
+		newFile.close();
+		return;
+	}
+	newFile << constructedJson;
+	newFile.close();
+}
+
+void ScriptBindingFileManager::AddNewBindingToGlobal(std::string scriptFilePath, std::string bindingFilePath)
+{
+	auto& bindingItems = this->bindingItemPathsFileData.bindingItems;
+	for (int i = 0; i < bindingItems.size(); i++)
+	{
+		if (bindingItems[i].scriptFullPath.compare(scriptFilePath) == 0)
+		{
+			bindingItems[i].bindingFilesPathRelative.push_back(bindingFilePath);
+			return;
+		}
+	}
+	// construct new path data
+	BindingItemPathFileData bindingPathFileData;
+	bindingPathFileData.scriptFullPath = scriptFilePath;
+	bindingPathFileData.currentBindingIndex = 0;
+	bindingPathFileData.bindingFilesPathRelative.push_back(bindingFilePath);
+	bindingItems.push_back(bindingPathFileData);
+}
+
+void ScriptBindingFileManager::RemoveBindingAndSaveGlobal(std::string scriptFilePath, std::string bindingFilePath)
+{
+	auto& bindingItems = this->bindingItemPathsFileData.bindingItems;
+	for (int i = 0; i < bindingItems.size(); i++)
+	{
+		if (bindingItems[i].scriptFullPath.compare(scriptFilePath) == 0)
+		{
+			auto& bindingFilesPaths = bindingItems[i].bindingFilesPathRelative;
+			for (int a = 0; a < bindingFilesPaths.size(); a++)
+			{
+				if (bindingFilesPaths[i].compare(bindingFilePath) == 0)
+				{
+					bindingFilesPaths.erase(bindingFilesPaths.begin()+i);
+					break;
+				}
+			}
+			if (bindingFilesPaths.size() == 0)
+			{
+				bindingItems.erase(bindingItems.begin() + i);
+				break;
+			}
+		}
+	}
+	// Delete the file also
+	remove(bindingFilePath.c_str());
+	SaveGlobalToFile();
+}
+
+void ScriptBindingFileManager::SaveGlobalToFile()
+{
+	rapidjson::StringBuffer stringBuffer;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
+	writer.StartObject();
+	writer.Key("bindingItems");
+	writer.StartArray();
+	for (int i = 0; i < bindingItemPathsFileData.bindingItems.size(); i++)
+	{
+		BindingItemPathFileData filePathData = bindingItemPathsFileData.bindingItems[i];
+		writer.StartObject();
+		writer.Key("scriptFullPath"); writer.String(filePathData.scriptFullPath.c_str());
+		writer.Key("currentBindingIndex"); writer.Int(filePathData.currentBindingIndex);
+		writer.Key("bindingFiles");
+		writer.StartArray();
+		for (int a = 0; a < filePathData.bindingFilesPathRelative.size(); a++)
+		{
+			writer.String(filePathData.bindingFilesPathRelative[a].c_str());
+		}
+		writer.EndArray();
+		writer.EndObject();
+	}
+	writer.EndArray();
+	writer.EndObject();
+	const char* constructedJson = stringBuffer.GetString();
+
+	std::ofstream newFile;
+	newFile.open("Bindings/_globalBindingSettings");
+	if (!newFile.is_open())
+	{
+		std::cout << "OMG cant write global file!" << std::endl;
+		newFile.close();
+		return;
+	}
+	newFile << constructedJson;
+	newFile.close();
+}
+
+std::vector<std::string> ScriptBindingFileManager::GetBindingFileNames(std::string scriptFilePath)
+{
+	for (int i = 0; i < bindingItemPathsFileData.bindingItems.size(); i++)
+	{
+		if (bindingItemPathsFileData.bindingItems[i].scriptFullPath.compare(scriptFilePath) == 0)
+		{
+			return bindingItemPathsFileData.bindingItems[i].bindingFilesPathRelative;
+		}
+	}
+	ConstructUntiteledBinding(scriptFilePath);
+	std::vector <std::string> untiteledArray = std::vector<std::string>();
+	untiteledArray.push_back(untiteledBinding.bindingFilesPathRelative[0]);
+	return untiteledArray;
 }
 /*
 void ScriptBindingFileManager::ApplyBindings(Script& script)
