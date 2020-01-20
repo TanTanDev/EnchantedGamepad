@@ -77,12 +77,14 @@ int main()
 	// windows
 	ProgramsWindow programsWindow(app);
 	SelectedScriptWindow selectedScriptWindow;
-	BindingsWindow bindingWindow;
+	//BindingsWindow bindingWindow(script);
+	BindingsWindow::GetInstance();
 	TextEditorWindow textEditorWindow;
 	ControllerViewWindow controllerViewWindow;
 
-	BindingSettings bindingSettings;
-	bindingSettings.CreateOrLoadGlobalBindingsFile();
+	ScriptBindingFileManager::GetInstance().CreateOrLoadGlobalBindingsFile();
+	//BindingSettingsFileManager bindingSettings;
+	//bindingSettings.CreateOrLoadGlobalBindingsFile();
 
 	bool isRunningScript = false;
 	bool autoHotReload = false;
@@ -122,9 +124,10 @@ int main()
 		ConsoleWindow::GetInstance().DrawConsole(true);
 		
 		// window renders
-		programsWindow.Render(app, fileScanner, script, isRunningScript, bindingSettings);
+		programsWindow.Render(app, fileScanner, script, isRunningScript);
 		selectedScriptWindow.Render(app, fileScanner, script, isRunningScript, autoHotReload);
-		bindingWindow.Render(app, fileScanner, script, timer, anyKeyPressed, bindingSettings);
+		//bindingWindow.Render(app, fileScanner, script, timer, anyKeyPressed);
+		BindingsWindow::GetInstance().Render(app, fileScanner, script, timer, anyKeyPressed);
 		textEditorWindow.Render(app, script);
 		controllerViewWindow.Render();
 		

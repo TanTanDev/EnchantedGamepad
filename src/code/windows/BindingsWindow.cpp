@@ -42,17 +42,27 @@ BindingsWindow::~BindingsWindow()
 {
 }
 
-void BindingsWindow::Render(Application & FD, FileScanner & fileScanner, Script & script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed, ScriptBindingFileManager& bindingSettings)
+void BindingsWindow::Render(Application & FD, FileScanner & fileScanner, Script & script, Timer& timer, const sf::Keyboard::Key& anyKeyPressed)
 {
 	bool isWindowOpen = ImGui::Begin("Bindings");
-	
+	if (!script.IsGood())
+	{
+		ImGui::End();
+		return;
+	}
+	RenderSaveAs(script);
+	RenderRemovePopup(script);
+
 	// Window opened
 	if (isWindowOpen && !isWindowOpenPrev)
 	{
 		//const std::string selectedScriptFileName = script.GetFileName();
 	//	bindingSettings.ApplyBindings(script);
+		RefreshBindingFiles(script);
 	}
 	isWindowOpenPrev = isWindowOpen;
+
+
 	if (isWindowOpen)
 	{
 		ImGui::Checkbox("Tweakable with keyboard", &tweakWithKeyboard);
@@ -215,24 +225,107 @@ void BindingsWindow::Render(Application & FD, FileScanner & fileScanner, Script 
 
 void BindingsWindow::RenderBindingsFile(Application & FD, FileScanner & fileScanner, Script & script, Timer & timer)
 {
-	ImGui::Combo("File Bindings2", &bindingsFileIndex, bindingFiles);
+	ImGui::Combo("File Bindings", &bindingsFileIndex, bindingFiles);
 	if (bindingsFileIndex != bindingsFileIndexPrev)
 	{
-		// reload
-		//bindingSettings.ApplyBindings(script);
+		ScriptBindingFileManager::GetInstance().ApplyBindings(script, bindingFiles[bindingsFileIndex]);
 	}
-
 	bindingsFileIndexPrev = bindingsFileIndex;
+
 	ImGui::Button("Save"); ImGui::SameLine();
-	ImGui::Button("Save As"); ImGui::SameLine();
-	ImGui::Button("Delete"); ImGui::SameLine();
+	if (ImGui::Button("Save As"))
+		ImGui::OpenPopup("Save As");
+	ImGui::SameLine();
+	bool isDeleteAvailable = !(GetCurrentBindingFileName().compare("UNTITELED") == 0);
+	if (!isDeleteAvailable)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha*0.5f);
+	}
+	if (ImGui::Button("Delete") && isDeleteAvailable)
+		ImGui::OpenPopup("Delete File");
+	if (!isDeleteAvailable)
+		ImGui::PopStyleVar();
+
+	ImGui::SameLine();
 	ImGui::Button("Explore");
 	// get latest file for bindings, if non existant, construct an empty one based on the lua state
 	// assign the lua state globals from the file json
 	// maybe make an external class that handles this...
 }
 
+void BindingsWindow::RenderSaveAs(Script & script)
+{
+	if (!ImGui::BeginPopupModal("Save As", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		return;
+
+	ImGui::Text("Save bindings file as name: ");
+	ImGui::Separator();
+	static char inputFileNameBuf[32] = "";
+	ImGui::InputText("+ .binding", inputFileNameBuf, 32);
+	if (ImGui::Button("OK", ImVec2(120, 0)))
+	{
+		std::string bindingFileName = "Bindings/" + std::string(inputFileNameBuf) + ".binding";
+		ScriptBindingFileManager::GetInstance().CreateNewBindingFileAndSave(bindingFileName);
+		ScriptBindingFileManager::GetInstance().AddNewBindingToGlobal(script.GetFileName(), bindingFileName);
+		ScriptBindingFileManager::GetInstance().SaveGlobalToFile();
+		RefreshBindingFiles(script);
+		ImGui::CloseCurrentPopup();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+	ImGui::EndPopup();
+}
+
+void BindingsWindow::RenderRemovePopup(Script & script)
+{
+	if (!ImGui::BeginPopupModal("Delete File", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		return;
+	std::string currentBindingFileName = GetCurrentBindingFileName();
+	//const char* titleMsg = std::string("YOU ARE ABOUT TO DELETE FILE:")
+	//	.append(currentBindingFileName).c_str();
+
+	ImGui::Text("YOU ARE ABOUT TO DELETE FILE:");
+	ImGui::Text(currentBindingFileName.c_str());
+	ImGui::Separator();
+	if (ImGui::Button("DELETE", ImVec2(120, 0)))
+	{
+
+		ScriptBindingFileManager::GetInstance().RemoveBindingAndSaveGlobal(script.GetFileName(), currentBindingFileName);
+		bindingsFileIndex--;
+		if (bindingsFileIndex < 0)
+			bindingsFileIndex = 0;
+		RefreshBindingFiles(script);
+		ImGui::CloseCurrentPopup();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+	ImGui::EndPopup();
+}
+
 void BindingsWindow::RefreshBindingFiles(Script & script)
 {
-	
+	bindingFiles.clear();
+	std::vector<std::string> refreshedBindingFiles = ScriptBindingFileManager::GetInstance().GetBindingFileNames(script.GetFileName());
+	for (int i = 0; i < refreshedBindingFiles.size(); i++)
+	{
+		bindingFiles.push_back(refreshedBindingFiles[i]);
+	}
+}
+
+void BindingsWindow::ApplyBindings(Script & script)
+{
+	std::string bindingFileName = GetCurrentBindingFileName();
+	if (bindingFileName.compare("") != 0)
+		ScriptBindingFileManager::GetInstance().ApplyBindings(script, bindingFileName);
+}
+
+std::string BindingsWindow::GetCurrentBindingFileName()
+{
+	if (bindingsFileIndex < 0 || bindingsFileIndex > bindingFiles.size())
+		return std::string();
+	return bindingFiles[bindingsFileIndex];
+}
+
+void BindingsWindow::HandleOnScriptChanged()
+{
 }

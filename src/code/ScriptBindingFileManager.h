@@ -83,18 +83,26 @@ struct BindingItemPathsFileData
 };
 
 
-class ScriptBindingFileManager: public Singleton<ScriptBindingFileManager>
+class ScriptBindingFileManager : public Singleton<ScriptBindingFileManager>
 {
 private:
 	void CreateBindingsFolder();
-	/*void ApplyBindingFromFileName(Script& script, std::string fileName);*/
 
 	BindingItemPathsFileData bindingItemPathsFileData;
+	BindingItemPathFileData untiteledBinding;
+
+	void ConstructUntiteledBinding(std::string scriptFileName);
 public:
 	ScriptBindingFileManager();
 	~ScriptBindingFileManager();
 	void CreateOrLoadGlobalBindingsFile();
+	void CreateNewBindingFileAndSave(std::string filePath);
+	void AddNewBindingToGlobal(std::string scriptFilePath, std::string bindingFilePath);
+	void RemoveBindingAndSaveGlobal(std::string scriptFilePath, std::string bindingFilePath);
+	void SaveGlobalToFile();
 
+	void ApplyBindings(Script& script, std::string bindingFileName);
+	std::vector<std::string>GetBindingFileNames(std::string scriptFilePath);
 	/*void ApplyBindings(Script& script);*/
 	/*void ApplyBindings(Script& script, int index);*/
 };

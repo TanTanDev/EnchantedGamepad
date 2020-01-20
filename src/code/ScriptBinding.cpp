@@ -40,6 +40,33 @@ ScriptBinding::~ScriptBinding()
 {
 }
 
+void ScriptBinding::UpdateBinding(std::string globalName, int value)
+{
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		if (bindings[i].GlobalName.compare(globalName) == 0)
+			bindings[i].Set(value);
+	}
+}
+
+void ScriptBinding::UpdateBinding(std::string globalName, bool value)
+{
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		if (bindings[i].GlobalName.compare(globalName) == 0)
+			bindings[i].Set(value);
+	}
+}
+
+void ScriptBinding::UpdateBinding(std::string globalName, float value)
+{
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		if (bindings[i].GlobalName.compare(globalName) == 0)
+			bindings[i].Set(value);
+	}
+}
+
 void ScriptBinding::Bind(Binding binding)
 {
 	// check if already bound
