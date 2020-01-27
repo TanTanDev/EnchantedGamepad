@@ -38,7 +38,7 @@ void ScriptBindingFileManager::ApplyBindings(Script& script, std::string binding
 	std::ifstream ifStream(bindingFileName);
 	if (ifStream.bad() || ifStream.fail())
 	{
-		std::cout << "bad/non-existant file: " << bindingFileName << std::endl;
+	//	std::cout << "bad/non-existant file: " << bindingFileName << std::endl;
 		return;
 	}
 	std::string contents = std::string(std::istreambuf_iterator<char>(ifStream), std::istreambuf_iterator<char>());
@@ -136,6 +136,7 @@ void ScriptBindingFileManager::CreateOrLoadGlobalBindingsFile()
 
 void ScriptBindingFileManager::CreateNewBindingFileAndSave(std::string filePath)
 {
+	TryCreateBindingsFolder();
 	rapidjson::StringBuffer stringBuffer;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
 	writer.StartObject();
@@ -229,6 +230,7 @@ void ScriptBindingFileManager::RemoveBindingAndSaveGlobal(std::string scriptFile
 
 void ScriptBindingFileManager::SaveGlobalToFile()
 {
+	TryCreateBindingsFolder();
 	rapidjson::StringBuffer stringBuffer;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
 	writer.StartObject();
@@ -263,6 +265,16 @@ void ScriptBindingFileManager::SaveGlobalToFile()
 	}
 	newFile << constructedJson;
 	newFile.close();
+}
+
+bool ScriptBindingFileManager::TryCreateBindingsFolder()
+{
+	if (!std::experimental::filesystem::exists("Bindings"))
+	{
+		bool success = std::experimental::filesystem::create_directory("Bindings");
+		return success;
+	}
+	return false;
 }
 
 std::vector<std::string> ScriptBindingFileManager::GetBindingFileNames(std::string scriptFilePath)
