@@ -59,6 +59,7 @@ void Script::Load(const char* fileName)
 	luaState = luaL_newstate();
 
 	// todo: sandbox
+	// for some reason luaopen_package() crashes, which is needed for require.
 	luaL_openlibs(luaState);
 
 	ScriptBindings::luaopen_input(luaState);
