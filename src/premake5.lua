@@ -3,6 +3,10 @@ solution "EnchantedGamepad"
     platforms { "Win32", "Win64" }
 
 project "EnchantedGamepad"
+    filter { 'system:windows' }
+        files { '**.rc', '**.ico' }
+    filter {}
+
     kind "WindowedApp"
     entrypoint "mainCRTStartup"
     language "C++"

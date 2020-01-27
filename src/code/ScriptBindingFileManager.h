@@ -101,6 +101,8 @@ public:
 	void RemoveBindingAndSaveGlobal(std::string scriptFilePath, std::string bindingFilePath);
 	void SaveGlobalToFile();
 
+	bool TryCreateBindingsFolder();
+
 	void ApplyBindings(Script& script, std::string bindingFileName);
 	std::vector<std::string>GetBindingFileNames(std::string scriptFilePath);
 	/*void ApplyBindings(Script& script);*/

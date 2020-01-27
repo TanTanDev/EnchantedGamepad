@@ -231,19 +231,27 @@ void BindingsWindow::RenderBindingsFile(Application & FD, FileScanner & fileScan
 		ScriptBindingFileManager::GetInstance().ApplyBindings(script, bindingFiles[bindingsFileIndex]);
 	}
 	bindingsFileIndexPrev = bindingsFileIndex;
+	bool isUntiteled = !(GetCurrentBindingFileName().compare("UNTITELED") == 0);
 
-	ImGui::Button("Save"); ImGui::SameLine();
+	if (!isUntiteled)
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha*0.5f);
+	if (ImGui::Button("Save"))
+	{
+		std::string currentBindingFileName = GetCurrentBindingFileName();
+		ScriptBindingFileManager::GetInstance().CreateNewBindingFileAndSave(currentBindingFileName);
+		ScriptBindingFileManager::GetInstance().SaveGlobalToFile();
+	}
+	ImGui::SameLine();
+	if (!isUntiteled)
+		ImGui::PopStyleVar();
 	if (ImGui::Button("Save As"))
 		ImGui::OpenPopup("Save As");
 	ImGui::SameLine();
-	bool isDeleteAvailable = !(GetCurrentBindingFileName().compare("UNTITELED") == 0);
-	if (!isDeleteAvailable)
-	{
+	if (!isUntiteled)
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha*0.5f);
-	}
-	if (ImGui::Button("Delete") && isDeleteAvailable)
+	if (ImGui::Button("Delete") && isUntiteled)
 		ImGui::OpenPopup("Delete File");
-	if (!isDeleteAvailable)
+	if (!isUntiteled)
 		ImGui::PopStyleVar();
 
 	ImGui::SameLine();
