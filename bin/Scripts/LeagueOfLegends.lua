@@ -1,53 +1,46 @@
 function Start()
 	Utility = require("Scripts/Utility" )
 	TimerManager = require("Scripts/Libraries/TimerManager")
+
 	isBlueSide = Bind("isBlueSide", true, "ToggleBox")
 	prevIsBlueSide = isBlueSide
-	dist = Bind("dist", 190, "SliderFloat", 0, 200)
+	mouseDistFree = Bind("mouseDistFree", 190, "SliderFloat", 0, 600)
+	mouseDistCentered = Bind("mouseDistCentered", 250, "SliderFloat", 0, 600)
 	
 	spellDistanceQ = Bind("spellDistanceQ", 150, "SliderFloat", 0, 600)
 	spellDistanceW = Bind("spellDistanceW", 400, "SliderFloat", 0, 600)
 	spellDistanceE = Bind("spellDistanceE", 130, "SliderFloat", 0, 600)
 	spellDistanceR = Bind("spellDistanceR", 150, "SliderFloat", 0, 600)
-	
-	spellDistanceF = Bind("spellDistanceR", 250, "SliderFloat", 0, 600)
+	spellDistanceF = Bind("spellDistanceF", 250, "SliderFloat", 0, 600)
+
+	targetSpeed = Bind("targetSpeed", 300, "SliderFloat", 100, 1000)
+	mapSpeed = Bind("mapSpeed", 366, "SliderFloat", 100, 1000)
+
+	shopMouseSpeed = 500
 	 
-	-- JARVAN SETTINGS
-	--spellDistanceQ = Bind("spellDistanceQ", 450, "SliderFloat",0,600)
-	--spellDistanceW = Bind("spellDistanceW", 300, "SliderFloat",0,600)
-	--spellDistanceE = Bind("spellDistanceE", 500, "SliderFloat",0,600)
-	--spellDistanceR = Bind("spellDistanceR", 300, "SliderFloat",0,600)
-	
-	--fromX = 400
-	--fromY = 400
-	--centerX = Bind("centerX", 400, "SliderFloat", 0, 1800)
-	--centerY = Bind("centerY", 400, "SliderFloat", 0, 1280)
-	--mouseSpeed = Bind("mouseSpeed", 0.1,"SliderFloat",0,3)
-	targetSpeed = Bind("targetSpeed", 300,"SliderFloat",100,1000)
-	mapSpeed = Bind("mapSpeed", 366,"SliderFloat",100,1000)
-	--daBool = Bind("daBool", true)
-	
 	currentCenterPos = SimulateInput.GetMousePos()
-	targetPos = nil
+
+	-- important to make sure the bindings work for any resolution
 	leagueRect = GetWindowRect("League of Legends (TM) Client")
+	minimapSize = Vector(0.138*leagueRect:Width(), 0.277*leagueRect:Height())
+	mapCenter = Vector(0.9317*leagueRect:Width(), 0.8277*leagueRect:Height())
+	mapMoveRange = Vector(0.09*leagueRect:Width(), 0.103*leagueRect:Height())
 	leagueRectCenter = leagueRect:Center()
 	
-	-- TOP SIDE OFFSET
-	--leagueCharacterOffset = Vector(50, -120)
+	-- Where on the screen the player is when the camera follows the player
+	leagueCenterOffset = leagueRectCenter + Vector(-0.0364*leagueRect:Width(), -0.02777*leagueRect:Height())
 	
-	-- blue side offset
-	leagueCharacterOffset = Vector(-70, -30)
-	
-	leagueCenterOffset = leagueRectCenter + leagueCharacterOffset
-	
-	-- initialize global
-	currentDistance = 100
-	
+	-- will represent a Vector where the centerpos wants to be
+	targetPos = nil
+
+	-- max mouse joystick distance
+	currentDistance = mouseDistFree
+
+	-- keeps time of when the currentDistance should be reset after a spell changed it
 	distanceTimer = 0
-	
 	isShoppingMode = false
-	ClearLog()
 end
+
 function lerp(a, b, t)
 	return a + (b - a) * t
 end
@@ -58,10 +51,10 @@ function UpdateSideOffsetValue()
 		ClearLog()
 		if isBlueSide then
 			print("side: blue")
-			leagueCharacterOffset = Vector(-70, -30)
+			leagueCharacterOffset = Vector(-0.0365*leagueRect:Width(), -0.02777*leagueRect:Height())
 		else
 			print("side: not blue lul")
-			leagueCharacterOffset = Vector(50, -120)
+			leagueCharacterOffset = Vector(0.030*leagueRect:Width(), -0.119375*leagueRect:Height())
 		end
 		-- update the centerpoint
 		leagueCenterOffset = leagueRectCenter + leagueCharacterOffset
@@ -92,24 +85,24 @@ function Update(dt)
 	else
 		GameplayInput(dt)
 	end
-	-- always no matter what mode
-	-- summoner spells, recalling
+
+	-- summoner spells & recalling will work any mode
 	Utility.CheckPress(Input.GAMEPAD_LEFT_TRIGGER, SimulateInput.KEY_D)
 	Utility.CheckPress(Input.GAMEPAD_RIGHT_TRIGGER, SimulateInput.KEY_F)
 end
 
 function ShoppingInput(dt)
-	--Utility.CheckPress(Input.GAMEPAD_BACK, SimulateInput.KEY_P)
+	-- mouse tap
 	Utility.CheckPress(Input.GAMEPAD_LEFT_BUTTON, SimulateInput.MOUSE_LEFT)
 	Utility.CheckPress(Input.GAMEPAD_RIGHT_BUTTON, SimulateInput.MOUSE_LEFT)
 
 	if Input.ButtonHeld(Input.GAMEPAD_LEFT_BUTTON) then
-		Utility.SetMousePosCenterOut(leagueCenterOffset, 250, 250, Input.GAMEPAD_LEFT_STICK)
+		Utility.SetMousePosCenterOut(leagueCenterOffset, mouseDistCentered, mouseDistCentered, Input.GAMEPAD_LEFT_STICK)
 	else
-		local mouseSpeed = 500
-		Utility.MoveMouse(Input.GAMEPAD_LEFT_STICK, mouseSpeed*dt)
+		Utility.MoveMouse(Input.GAMEPAD_LEFT_STICK, shopMouseSpeed*dt)
 	end
 
+	-- scrolling
 	if Input.ButtonHeld(Input.GAMEPAD_JOYSTICK_UP, Input.GAMEPAD_RIGHT_STICK) then
 		SimulateInput.ScrollMouse(10)
 	end
@@ -119,15 +112,9 @@ function ShoppingInput(dt)
 end
 
 function GameplayInput(dt)
-	--ClearLog()
+	-- recall
 	Utility.CheckPress(Input.GAMEPAD_BACK, SimulateInput.KEY_B)
-	local distTimeHODL = 0.3 
-	if distanceTimer < distTimeHODL then
-		distanceTimer = distanceTimer + dt
-		if distanceTimer >= distTimeHODL then
-			currentDistance = dist
-		end
-	end
+
 	-- left, right, up, down
 	MoveMapArrows(dt)
 
@@ -141,22 +128,21 @@ function GameplayInput(dt)
 	else
 		Spells()
 	end
-	SpellDistanceModifier()
 
-	-- TODO: see if this works
+	-- make sure the mouse isn't outside the league rect
 	Utility.ClampPointInRect(currentCenterPos, leagueRect, 300, 300)
-	-- clamp it baby
---	currentCenterPos:x(math.max(currentCenterPos:x(), leagueRect:X()+300))
---	currentCenterPos:x(math.min(currentCenterPos:x(), leagueRect:X()+leagueRect:Width()-300))
---	currentCenterPos:y(math.max(currentCenterPos:y(), leagueRect:Y()+300))
---	currentCenterPos:y(math.min(currentCenterPos:y(), leagueRect:Y()+leagueRect:Height()-300))
 
+	-- right clicking, but repeat if held
 	if Input.ButtonPressed(Input.GAMEPAD_RIGHT_BUTTON) then
+		-- update the target position so the center position is on the character 
 		targetPos = SimulateInput.GetMousePos()
+
+		-- initial right click
 		SimulateInput.PressKey(SimulateInput.MOUSE_RIGHT)
 
+		-- Continiously right click every 0,1 sec
 		TimerManager.SetTimer(0.1, true
-		,function(timerRef)
+		, function(timerRef)
 			if Input.ButtonHeld(Input.GAMEPAD_RIGHT_BUTTON) then
 				targetPos = SimulateInput.GetMousePos()
 				SimulateInput.PressKey(SimulateInput.MOUSE_RIGHT)
@@ -167,11 +153,16 @@ function GameplayInput(dt)
 
 	end
 
+	-- centering the lol camera
 	if Input.ButtonPressed(Input.GAMEPAD_LEFT_BUTTON) then
 		SimulateInput.KeyDown(SimulateInput.KEY_SPACE)
 		currentCenterPos = Vector(leagueCenterOffset:x(), leagueCenterOffset:y())
 	elseif Input.ButtonReleased(Input.GAMEPAD_LEFT_BUTTON) then
 		SimulateInput.KeyUp(SimulateInput.KEY_SPACE)
+
+		-- TEST ADVANCED USER FEATURE
+		currentCenterPos = Utility.GetPosCenterOut(currentCenterPos, currentDistance, currentDistance, Input.GAMEPAD_LEFT_STICK,0)
+		targetPos = nil
 	end
 
 	-- if joystick is resting, AKA under trigger threshold, centerout won't move mouse, let's move it...
@@ -179,51 +170,75 @@ function GameplayInput(dt)
 		SimulateInput.SetMousePos(leagueCenterOffset)
 	end
 
-	if Input.ButtonHeld(Input.GAMEPAD_LEFT_BUTTON) then
-		Utility.SetMousePosCenterOut(leagueCenterOffset, currentDistance, currentDistance, Input.GAMEPAD_LEFT_STICK)
-	else
-		Utility.SetMousePosCenterOut(currentCenterPos, currentDistance, currentDistance, Input.GAMEPAD_LEFT_STICK)
+	if Input.ButtonPressed(Input.GAMEPAD_LEFT_BUTTON) then
+		currentDistance = mouseDistCentered
+	elseif Input.ButtonReleased(Input.GAMEPAD_LEFT_BUTTON) then
+		currentDistance = mouseDistFree
+	end
 	
-		local targetSpeed = 300
+	local timeToHoldDistance = 0.3 
+	if distanceTimer < timeToHoldDistance then
+		distanceTimer = distanceTimer + dt
+		if distanceTimer >= timeToHoldDistance then
+			if Input.ButtonHeld(Input.GAMEPAD_LEFT_BUTTON) then
+				currentDistance = mouseDistCentered
+			else
+				currentDistance = mouseDistFree
+			end
+		end
+	end
+
+	-- update the currentDistance if we use a spell
+	SpellDistanceModifier()
+
+	if Input.ButtonHeld(Input.GAMEPAD_LEFT_BUTTON) then
+		Utility.SetMousePosCenterOutClamped(leagueCenterOffset, currentDistance, currentDistance, Input.GAMEPAD_LEFT_STICK, leagueRect, 20, 60)
+	else	
 		-- move centerPos towards target
 		if targetPos ~= nil then
 			local centerToTarget = targetPos - currentCenterPos
 			local distToTarget = centerToTarget:Length()
 			centerToTarget:Normalize()
 			local moveVector = centerToTarget*dt*targetSpeed
-			if moveVector:Length() > distToTarget then
+			-- Close enough to the target, I know this is ugly
+			if distToTarget > moveVector then
 				currentCenterPos = targetPos
 				targetPos = nil
 			else
 				currentCenterPos = currentCenterPos + moveVector
 			end
-			-- clamp it so we don't overshoot
+		end
+		local movedMouse = Utility.SetMousePosCenterOutClamped(currentCenterPos, currentDistance, currentDistance, Input.GAMEPAD_LEFT_STICK, leagueRect, 20, 60)
+		if not movedMouse and targetPos ~= nil then
+			SimulateInput.SetMousePos(currentCenterPos)
 		end
 	end
-	
-	if Input.ButtonPressed(Input.GAMEPAD_RIGHT_THUMB) then	
-		SimulateInput.KeyDown(SimulateInput.MOUSE_LEFT)
-	elseif Input.ButtonReleased(Input.GAMEPAD_RIGHT_THUMB) then
-		SimulateInput.KeyUp(SimulateInput.MOUSE_LEFT)
-		currentCenterPos = Vector(leagueCenterOffset:x(), leagueCenterOffset:y())
-		SimulateInput.SetMousePos(currentCenterPos)
-	end
 
+	-- Attack move
 	if Input.ButtonPressed(Input.GAMEPAD_LEFT_THUMB) then
 		SimulateInput.PressKey(SimulateInput.KEY_A)
 	end
 
+	if Input.ButtonPressed(Input.GAMEPAD_RIGHT_THUMB) then
+		SimulateInput.KeyDown(SimulateInput.MOUSE_LEFT)
+	end
+	-- MAP THUMB
 	if Input.ButtonHeld(Input.GAMEPAD_RIGHT_THUMB) then
 		local rightDownCorner = Vector(leagueRect:X() + leagueRect:Width(),leagueRect:Y() + leagueRect:Height())
-		local mapLeftUpCorner = rightDownCorner - Vector(200, 200)
-		local centerMap = rightDownCorner - Vector(100,100)
-		local finalPos = Utility.GetPosCenterOut(centerMap, 100, 100, Input.GAMEPAD_RIGHT_STICK, 0)
+		--local mapLeftUpCorner = rightDownCorner - Vector (265, 300)
+
+		local mapLeftUpCorner = rightDownCorner - minimapSize
+		local mapPos = Utility.GetPosCenterOut(mapCenter, mapMoveRange:x(), mapMoveRange:y(), Input.GAMEPAD_RIGHT_STICK, 0)
 
 		-- clamp it baby
-		finalPos:x(Utility.Clamp(finalPos:x(), mapLeftUpCorner:x()+20, rightDownCorner:x()-20))
-		finalPos:y(Utility.Clamp(finalPos:y(), mapLeftUpCorner:y()+20, rightDownCorner:y()-20))
+		mapPos:x(Utility.Clamp(mapPos:x(), mapLeftUpCorner:x()+20, rightDownCorner:x()-20))
+		mapPos:y(Utility.Clamp(mapPos:y(), mapLeftUpCorner:y()+20, rightDownCorner:y()-20))
 
-		SimulateInput.SetMousePos(finalPos)
+		SimulateInput.SetMousePos(mapPos)
+	elseif Input.ButtonReleased(Input.GAMEPAD_RIGHT_THUMB) then
+		SimulateInput.KeyUp(SimulateInput.MOUSE_LEFT)
+		currentCenterPos = Vector(leagueCenterOffset:x(), leagueCenterOffset:y())
+		SimulateInput.SetMousePos(currentCenterPos)		
 	end
 end
 
@@ -274,6 +289,12 @@ function SpellDistanceModifier()
 	end
 	if Input.ButtonHeld(Input.GAMEPAD_RIGHT_TRIGGER) then
 		currentDistance = spellDistanceF
+		distanceTimer = 0
+	end
+
+	-- Range for placing ward
+	if Input.ButtonHeld(Input.GAMEPAD_DPAD_DOWN) then
+		currentDistance = 300
 		distanceTimer = 0
 	end
 end

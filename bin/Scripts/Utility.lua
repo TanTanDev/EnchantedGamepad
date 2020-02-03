@@ -11,7 +11,7 @@ function Utility.CheckPress(gamepadButton, simulatedKey, joystickSide)
 	end
 end
 
--- same as checkpress but also execute a function provided if said button is held
+-- same as checkpress but also execuses a function provided if said button is held
 function Utility.CheckPressEx(gamepadButton, simulatedKey, joystickSide, funcOnHeld)
 	if Input.ButtonPressed(gamepadButton, joystickSide) then
 		SimulateInput.KeyDown(simulatedKey)
@@ -24,7 +24,6 @@ function Utility.CheckPressEx(gamepadButton, simulatedKey, joystickSide, funcOnH
 end
 
 -- to press multiple windows keys bound to 1 gamepad button
--- good for example: CTRL + C
 function Utility.CheckPressMultiple(gamepadButton, simulatedKey1, simulatedKey2)
 	if Input.ButtonPressed(gamepadButton) then
 		SimulateInput.PressKey(simulatedKey1, simulatedKey2)
@@ -54,6 +53,33 @@ function Utility.SetMousePosCenterOut(fromPos, xDistance, yDistance, stickSide)
 	local x = fromPos:x() + stickInput:x() * xDistance
 	local y = fromPos:y() - stickInput:y() * yDistance
 	SimulateInput.SetMousePos(x, y)
+end
+
+-- Move the mouse to 'fromPos', then offets the mouse with the joystick direction
+-- returns if it moved the mouse
+function Utility.SetMousePosCenterOutClamped(fromPos, xDistance, yDistance, stickSide, rect, extraPaddingX, extraPaddingY)
+	-- initialize variable prevLengthWasAbove to Utility table
+	-- used to make sure we won't lock the mouse position
+	if prevLengthWasAbove_clamped == nil then
+		prevLengthWasAbove_clamped = false
+	end
+
+	local stickInput = Input.GetStick(stickSide)
+	-- reset position when joystick is 'resting'
+	if stickInput:Length() <= 0 then
+		if forceSet or prevLengthWasAbove_clamped then
+			SimulateInput.SetMousePos(fromPos)
+		end
+		prevLengthWasAbove_clamped = false
+		return false
+	end
+	prevLengthWasAbove_clamped = true
+	local x = fromPos:x() + stickInput:x() * xDistance
+	local y = fromPos:y() - stickInput:y() * yDistance
+	local finalPos = Vector(x, y)
+	Utility.ClampPointInRect(finalPos, rect, extraPaddingX, extraPaddingY)
+	SimulateInput.SetMousePos(finalPos:x(), finalPos:y())
+	return true
 end
 
 function Utility.GetPosCenterOut(fromPos, xDistance, yDistance, stickSide, threshold)
