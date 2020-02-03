@@ -55,6 +55,33 @@ function Utility.SetMousePosCenterOut(fromPos, xDistance, yDistance, stickSide)
 	SimulateInput.SetMousePos(x, y)
 end
 
+-- Move the mouse to 'fromPos', then offets the mouse with the joystick direction
+-- returns if it moved the mouse
+function Utility.SetMousePosCenterOutClamped(fromPos, xDistance, yDistance, stickSide, rect, extraPaddingX, extraPaddingY)
+	-- initialize variable prevLengthWasAbove to Utility table
+	-- used to make sure we won't lock the mouse position
+	if prevLengthWasAbove_clamped == nil then
+		prevLengthWasAbove_clamped = false
+	end
+
+	local stickInput = Input.GetStick(stickSide)
+	-- reset position when joystick is 'resting'
+	if stickInput:Length() <= 0 then
+		if forceSet or prevLengthWasAbove_clamped then
+			SimulateInput.SetMousePos(fromPos)
+		end
+		prevLengthWasAbove_clamped = false
+		return false
+	end
+	prevLengthWasAbove_clamped = true
+	local x = fromPos:x() + stickInput:x() * xDistance
+	local y = fromPos:y() - stickInput:y() * yDistance
+	local finalPos = Vector(x, y)
+	Utility.ClampPointInRect(finalPos, rect, extraPaddingX, extraPaddingY)
+	SimulateInput.SetMousePos(finalPos:x(), finalPos:y())
+	return true
+end
+
 function Utility.GetPosCenterOut(fromPos, xDistance, yDistance, stickSide, threshold)
 	local stickInput = Input.GetStick(stickSide, threshold)
 	local x = fromPos:x() + stickInput:x() * xDistance
