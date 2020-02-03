@@ -66,5 +66,14 @@ Rect AppSettings::GetWindowRectByName(const char* name)
 	newRect.Y = outRect.top;
 	newRect.Width = outRect.right - outRect.left;
 	newRect.Height = outRect.bottom - outRect.top;
+
+	// 
+	if (!isWindowAvaliable)
+	{
+		newRect.X = 0;
+		newRect.Y = 0;
+		newRect.Width = 1920;
+		newRect.Height = 1080;
+	}
 	return newRect;
 }
