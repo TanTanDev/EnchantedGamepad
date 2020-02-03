@@ -1,1 +1,1 @@
-ExitAppKey = "g"--SimulateInput.KEY_F5
+ExitAppKey = 89--SimulateInput.KEY_F5

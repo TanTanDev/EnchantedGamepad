@@ -114,6 +114,11 @@ int main()
 			if (event.type == sf::Event::KeyPressed)
 			{
 				anyKeyPressed = event.key.code;
+				if (anyKeyPressed == AppSettings::GetInstance().ExitAppKey)
+				{
+					isRunningScript = false;
+					ScriptBinding::GetInstance().ClearBindings();
+				}
 			}
 			else if(event.type == sf::Event::KeyReleased)
 				anyKeyPressed = sf::Keyboard::Key::Unknown;
