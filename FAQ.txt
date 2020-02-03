@@ -1,0 +1,26 @@
+FAQ.
+IMPORTANT:
+Currently, If you have another resolution than 1920x1080
+you have to start the script, after getting into the loading screen,
+this is because the script will try to find the league of legends window,
+in order to find out how big it is, so that it nows where to place the mouse.
+
+Can I use a playstation controller?
+NO, currently you can only use an xbox controller.
+
+Why does the program take the mouse hostage?
+Taking controll over the mouse is the purpose of this program
+it's most likley that the resting position of the joystick is above the moving threshold.
+Try adjusting the joystick to, free it.
+if you however make a script that always forces the mouse position you can either press the abort key which default to F5 in the globalSettings.lua
+or just alt-f4 the program.
+
+The mouse positioning is weird.
+I wrote the bindings with 1920x1080 resolution in mind, i tried to make it resolution independant,
+but some things might be wrongly placed if you have a different resolution,
+you unfortunately have to modify the script to fix that.
+
+My computer is acting weird after stopping the program!
+When you stop the program and a button is held down,
+currently the program won’t release the button.
+Meaning the ctrl button could always be held down. Fix it by pressing the buttons that are down.
